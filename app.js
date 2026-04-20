@@ -129,7 +129,15 @@ async function handleInstallApp() {
 
   if (isIosInstallCandidate()) {
     window.alert("En Safari, tocá Compartir y después 'Agregar a pantalla de inicio'.");
+    return;
   }
+
+  if (isFirefoxBrowser()) {
+    window.alert("Firefox no ofrece instalación PWA desde esta página. Para instalarla como app, abrila en Chrome o Edge. En iPhone/iPad, usá Safari y 'Agregar a pantalla de inicio'.");
+    return;
+  }
+
+  window.alert("Este navegador no mostró el prompt de instalación. Probá con Chrome o Edge para instalar la app desde esta página.");
 }
 
 function handleAppInstalled() {
@@ -143,7 +151,19 @@ function updateInstallButtonVisibility() {
   }
 
   const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
-  installAppButton.hidden = isStandalone || (!deferredInstallPrompt && !isIosInstallCandidate());
+  installAppButton.hidden = isStandalone;
+
+  if (deferredInstallPrompt) {
+    installAppButton.textContent = "Instalar app";
+    return;
+  }
+
+  if (isIosInstallCandidate()) {
+    installAppButton.textContent = "Cómo instalar";
+    return;
+  }
+
+  installAppButton.textContent = "Instalar app";
 }
 
 function isIosInstallCandidate() {
@@ -152,6 +172,10 @@ function isIosInstallCandidate() {
   const isSafari = /safari/.test(userAgent) && !/crios|fxios|edgios/.test(userAgent);
   const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
   return isIos && isSafari && !isStandalone;
+}
+
+function isFirefoxBrowser() {
+  return /firefox|fxios/i.test(window.navigator.userAgent);
 }
 
 function persistState() {
