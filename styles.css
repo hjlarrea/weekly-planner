@@ -145,8 +145,17 @@ h3 {
   flex-wrap: wrap;
 }
 
+#install-app {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 40;
+  box-shadow: 0 14px 40px rgba(64, 38, 20, 0.18);
+}
+
 #install-app:not([hidden]) {
   display: inline-flex;
+  align-items: center;
 }
 
 .people-bar {
@@ -494,6 +503,12 @@ th {
 
   .person-strip {
     grid-template-columns: 1fr;
+  }
+
+  #install-app {
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.7rem 1rem;
   }
 }
 
