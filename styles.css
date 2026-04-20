@@ -145,6 +145,10 @@ h3 {
   flex-wrap: wrap;
 }
 
+#install-app:not([hidden]) {
+  display: inline-flex;
+}
+
 .people-bar {
   margin-bottom: 1.25rem;
 }
