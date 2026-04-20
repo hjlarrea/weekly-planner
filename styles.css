@@ -426,14 +426,12 @@ th {
   opacity: 1;
 }
 
-.planner-edit-badge {
+.planner-edit-title {
   cursor: pointer;
   pointer-events: all;
-}
-
-.planner-edit-badge rect,
-.planner-edit-badge text {
-  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
 }
 
 .planner-event * {
