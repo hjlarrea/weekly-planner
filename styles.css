@@ -381,6 +381,10 @@ h3 {
   padding: 2rem;
 }
 
+.empty-state[hidden] {
+  display: none;
+}
+
 .table-wrap {
   overflow-x: auto;
   margin-top: 1rem;
