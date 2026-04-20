@@ -1,0 +1,9 @@
+{
+  "name": "weekly-planner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Internal weekly planner for kids activities and transport schedules.",
+  "scripts": {
+    "start": "python3 -m http.server 4173"
+  }
+}

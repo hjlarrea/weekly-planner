@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Planner Semanal Familiar</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Organización Familiar</p>
+          <h1>Planner Semanal</h1>
+          <p class="hero-copy">
+            Organizá actividades, traslados y rutina semanal en una sola vista.
+            Cada bloque se identifica por color según la persona principal a la
+            que pertenece.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <button id="seed-week" type="button">Cargar semana demo</button>
+          <button id="reset-week" type="button" class="ghost">Limpiar semana</button>
+        </div>
+      </header>
+
+      <section class="panel people-bar">
+        <div class="panel-header people-bar-header">
+          <div>
+            <p class="section-kicker">Personas</p>
+            <h2>Personas Principales</h2>
+          </div>
+          <div class="people-bar-actions">
+            <button id="add-person" type="button" class="ghost compact">Agregar persona</button>
+            <button id="save-json" type="button" class="ghost compact">Descargar JSON</button>
+            <label class="import-inline" for="json-upload">
+              Importar JSON
+              <input id="json-upload" type="file" accept="application/json" />
+            </label>
+          </div>
+        </div>
+
+        <div id="people-list" class="person-list person-strip"></div>
+      </section>
+
+      <main class="workspace">
+        <section class="panel stack editor-panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Editor</p>
+              <h2>Agregar Bloque al Horario</h2>
+            </div>
+          </div>
+
+          <form id="entry-form" class="entry-form">
+            <input type="hidden" id="entry-id" />
+
+            <div class="field-row split">
+              <label>
+                Tipo
+                <select id="entry-type" required>
+                  <option value="activity">Actividad</option>
+                  <option value="transport">Traslado</option>
+                </select>
+              </label>
+
+              <label>
+                Día
+                <select id="entry-day" required>
+                  <option value="0">Lunes</option>
+                  <option value="1">Martes</option>
+                  <option value="2">Miércoles</option>
+                  <option value="3">Jueves</option>
+                  <option value="4">Viernes</option>
+                  <option value="5">Sábado</option>
+                  <option value="6">Domingo</option>
+                </select>
+              </label>
+            </div>
+
+            <label>
+              Repetición
+              <select id="entry-repeat">
+                <option value="none">No se repite</option>
+                <option value="weekly">Se repite semanalmente en los días elegidos</option>
+              </select>
+            </label>
+
+            <div id="repeat-days-wrap" class="repeat-days" hidden>
+              <span class="repeat-days-label">Días de la semana</span>
+              <div class="repeat-days-grid">
+                <label><input type="checkbox" name="repeat-day" value="0" /> Lun</label>
+                <label><input type="checkbox" name="repeat-day" value="1" /> Mar</label>
+                <label><input type="checkbox" name="repeat-day" value="2" /> Mié</label>
+                <label><input type="checkbox" name="repeat-day" value="3" /> Jue</label>
+                <label><input type="checkbox" name="repeat-day" value="4" /> Vie</label>
+                <label><input type="checkbox" name="repeat-day" value="5" /> Sáb</label>
+                <label><input type="checkbox" name="repeat-day" value="6" /> Dom</label>
+              </div>
+              <p class="repeat-help">
+                Al hacer clic en un bloque repetido del calendario, editás solo esa
+                instancia puntual de ese día.
+              </p>
+            </div>
+
+            <label>
+              Título
+              <input
+                id="entry-title"
+                type="text"
+                maxlength="60"
+                placeholder="Fútbol, retiro de piano..."
+                required
+              />
+            </label>
+
+            <div class="field-row split">
+              <label id="person-label">
+                <span id="person-label-text">Persona Principal</span>
+                <select id="entry-person" required></select>
+              </label>
+
+              <label>
+                Lugar / Recorrido
+                <input
+                  id="entry-location"
+                  type="text"
+                  maxlength="60"
+                  placeholder="Club, Casa → Academia"
+                />
+              </label>
+            </div>
+
+            <div class="field-row split">
+              <label>
+                Desde
+                <input id="entry-start" type="time" required />
+              </label>
+
+              <label>
+                Hasta
+                <input id="entry-end" type="time" required />
+              </label>
+            </div>
+
+            <label>
+              Notas
+              <textarea
+                id="entry-notes"
+                rows="3"
+                maxlength="160"
+                placeholder="Llevar botines, retirar por portón sur..."
+              ></textarea>
+            </label>
+
+            <div class="button-row">
+              <button type="submit">Guardar bloque</button>
+              <button id="cancel-edit" type="button" class="ghost">
+                Cancelar edición
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel planner-panel">
+          <div class="panel-header planner-header">
+            <div>
+              <p class="section-kicker">Vista Semanal</p>
+              <h2>Esta Semana</h2>
+            </div>
+            <div class="planner-actions">
+              <button id="download-svg" type="button" class="ghost">Exportar SVG</button>
+              <button id="download-png" type="button" class="ghost">Exportar PNG</button>
+              <button id="print-planner" type="button">Imprimir / PDF</button>
+            </div>
+          </div>
+
+          <div class="planner-meta">
+            <div id="legend-chips" class="chips"></div>
+            <p id="planner-summary" class="summary"></p>
+          </div>
+
+          <div class="planner-canvas-wrap">
+            <div id="planner-empty" class="empty-state">
+              Agregá actividades y traslados para completar la vista semanal.
+            </div>
+            <div id="planner-canvas" class="planner-canvas"></div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Día</th>
+                  <th>Horario</th>
+                  <th>Tipo</th>
+                  <th>Título</th>
+                  <th>Persona</th>
+                  <th>Lugar</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="entries-table"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="person-row-template">
+      <div class="person-row">
+        <input class="person-name" type="text" maxlength="30" />
+        <input class="person-color" type="color" />
+        <button class="ghost compact remove-person" type="button">Eliminar</button>
+      </div>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
