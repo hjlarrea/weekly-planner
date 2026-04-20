@@ -289,7 +289,7 @@ function renderPlanner() {
 
   plannerEmpty.hidden = true;
   plannerCanvas.innerHTML = createPlannerSvg(occurrences);
-  plannerCanvas.querySelectorAll(".planner-hitbox").forEach((element) => {
+  plannerCanvas.querySelectorAll(".planner-edit-badge").forEach((element) => {
     element.addEventListener("click", () => {
       editEntryInstance(element.dataset.entryId, Number(element.dataset.day));
     });
@@ -334,6 +334,11 @@ function createPlannerSvg(occurrences) {
     const titleY = top + 22;
     const subY = top + 40;
     const noteY = top + 57;
+    const badgeWidth = 58;
+    const badgeHeight = 22;
+    const badgeX = x + width - badgeWidth - 10;
+    const badgeY = top + 10;
+    const badgeTextY = badgeY + 15;
     const title = escapeHtml(entry.title);
     const personName = escapeHtml(person?.name || "Sin asignar");
     const line2 = escapeHtml(`${entry.start} - ${entry.end} · ${personName}`);
@@ -343,10 +348,13 @@ function createPlannerSvg(occurrences) {
       <g class="planner-event" data-entry-id="${entry.id}" data-day="${day}">
         <rect x="${x}" y="${top}" width="${width}" height="${height}" rx="18" fill="${fill}" opacity="0.88" />
         <rect x="${x}" y="${top}" width="8" height="${height}" rx="18" fill="${stripe}" opacity="0.92" />
+        <g class="planner-edit-badge" data-entry-id="${entry.id}" data-day="${day}">
+          <rect x="${badgeX}" y="${badgeY}" width="${badgeWidth}" height="${badgeHeight}" rx="11" fill="rgba(255,255,255,0.92)" />
+          <text x="${badgeX + badgeWidth / 2}" y="${badgeTextY}" text-anchor="middle" fill="#5b3b28" font-size="11" font-weight="700">Editar</text>
+        </g>
         <text x="${x + 18}" y="${titleY}" fill="#ffffff" font-size="15" font-weight="700">${title}</text>
         <text x="${x + 18}" y="${subY}" fill="rgba(255,255,255,0.92)" font-size="12">${line2}</text>
         ${line3 ? `<text x="${x + 18}" y="${noteY}" fill="rgba(255,255,255,0.84)" font-size="12">${line3}</text>` : ""}
-        <rect class="planner-hitbox" data-entry-id="${entry.id}" data-day="${day}" x="${x}" y="${top}" width="${width}" height="${height}" rx="18" fill="rgba(255,255,255,0.001)" />
       </g>
     `;
   }).join("");

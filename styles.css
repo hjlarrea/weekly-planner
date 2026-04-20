@@ -426,9 +426,14 @@ th {
   opacity: 1;
 }
 
-.planner-hitbox {
+.planner-edit-badge {
   cursor: pointer;
   pointer-events: all;
+}
+
+.planner-edit-badge rect,
+.planner-edit-badge text {
+  cursor: pointer;
 }
 
 .planner-event * {
