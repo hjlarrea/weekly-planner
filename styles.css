@@ -153,7 +153,7 @@ h3 {
   box-shadow: 0 14px 40px rgba(64, 38, 20, 0.18);
 }
 
-#install-app:not([hidden]) {
+#install-app {
   display: inline-flex;
   align-items: center;
 }
