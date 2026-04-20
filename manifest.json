@@ -1,21 +1,22 @@
 {
+  "id": "/",
   "name": "Planner Semanal Familiar",
   "short_name": "Planner",
-  "description": "Planner semanal familiar para actividades, traslados y organización diaria.",
-  "start_url": "./",
-  "scope": "./",
+  "description": "Planner semanal familiar para actividades, traslados y organizacion diaria.",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#f8f3ea",
   "theme_color": "#b85c38",
   "lang": "es-AR",
   "icons": [
     {
-      "src": "./icons/icon-192.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "./icons/icon-512.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
