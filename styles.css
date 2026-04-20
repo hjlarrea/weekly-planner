@@ -178,7 +178,7 @@ h3 {
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+  grid-template-columns: minmax(340px, 420px) minmax(720px, 1fr);
   gap: 1.25rem;
   align-items: start;
 }
@@ -217,6 +217,16 @@ h3 {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.edit-context-banner {
+  padding: 0.85rem 1rem;
+  border-radius: 16px;
+  background: rgba(184, 92, 56, 0.12);
+  border: 1px solid rgba(184, 92, 56, 0.2);
+  color: #7a341d;
+  font-size: 0.92rem;
+  line-height: 1.4;
 }
 
 .repeat-days {
@@ -271,6 +281,15 @@ h3 {
 .person-strip {
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   margin-top: 1rem;
+}
+
+.editor-panel {
+  position: sticky;
+  top: 1rem;
+}
+
+.planner-panel {
+  min-width: 0;
 }
 
 .person-row {
@@ -396,14 +415,23 @@ th {
 }
 
 .planner-event {
-  cursor: pointer;
+  pointer-events: none;
 }
 
 .planner-event:hover rect:first-child {
   opacity: 1;
 }
 
-@media (max-width: 1080px) {
+.planner-hitbox {
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.planner-event * {
+  cursor: pointer;
+}
+
+@media (max-width: 1240px) {
   .workspace {
     grid-template-columns: 1fr;
   }
@@ -419,6 +447,10 @@ th {
 
   .summary {
     text-align: left;
+  }
+
+  .editor-panel {
+    position: static;
   }
 }
 

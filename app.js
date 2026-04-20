@@ -32,6 +32,7 @@ const entryDay = document.querySelector("#entry-day");
 const entryRepeat = document.querySelector("#entry-repeat");
 const entryPerson = document.querySelector("#entry-person");
 const personLabelText = document.querySelector("#person-label-text");
+const editContextBanner = document.querySelector("#edit-context-banner");
 const entriesTable = document.querySelector("#entries-table");
 const plannerCanvas = document.querySelector("#planner-canvas");
 const plannerEmpty = document.querySelector("#planner-empty");
@@ -40,17 +41,14 @@ const legendChips = document.querySelector("#legend-chips");
 const jsonUpload = document.querySelector("#json-upload");
 const repeatDaysWrap = document.querySelector("#repeat-days-wrap");
 const repeatDayInputs = Array.from(document.querySelectorAll('input[name="repeat-day"]'));
+const addPersonButton = document.querySelector("#add-person");
 
 let currentEditContext = null;
+let pendingPersonFocusId = null;
 
-document.querySelector("#add-person").addEventListener("click", () => {
-  state.people.push({
-    id: crypto.randomUUID(),
-    name: `Persona ${state.people.length + 1}`,
-    color: randomColor(),
-  });
-  persistAndRender();
-});
+if (addPersonButton) {
+  addPersonButton.addEventListener("click", addPerson);
+}
 
 document.querySelector("#seed-week").addEventListener("click", loadDemoWeek);
 document.querySelector("#reset-week").addEventListener("click", clearWeek);
@@ -108,10 +106,12 @@ function renderPeople(container, people, key) {
 
   people.forEach((person) => {
     const row = personTemplate.content.firstElementChild.cloneNode(true);
-    row.querySelector(".person-name").value = person.name;
-    row.querySelector(".person-color").value = person.color;
+    const nameInput = row.querySelector(".person-name");
+    const colorInput = row.querySelector(".person-color");
+    nameInput.value = person.name;
+    colorInput.value = person.color;
 
-    row.querySelector(".person-name").addEventListener("input", (event) => {
+    nameInput.addEventListener("input", (event) => {
       person.name = event.target.value;
       persistState();
       syncEntryPersonSelect();
@@ -120,7 +120,7 @@ function renderPeople(container, people, key) {
       renderPlanner();
     });
 
-    row.querySelector(".person-color").addEventListener("input", (event) => {
+    colorInput.addEventListener("input", (event) => {
       person.color = event.target.value;
       persistState();
       renderEntriesTable();
@@ -139,7 +139,27 @@ function renderPeople(container, people, key) {
     });
 
     container.appendChild(row);
+
+    if (pendingPersonFocusId === person.id) {
+      pendingPersonFocusId = null;
+      requestAnimationFrame(() => {
+        nameInput.focus();
+        nameInput.select();
+        row.scrollIntoView({ block: "nearest", inline: "nearest" });
+      });
+    }
   });
+}
+
+function addPerson() {
+  const newPerson = {
+    id: crypto.randomUUID(),
+    name: `Persona ${state.people.length + 1}`,
+    color: randomColor(),
+  };
+  pendingPersonFocusId = newPerson.id;
+  state.people.push(newPerson);
+  persistAndRender();
 }
 
 function syncEntryPersonSelect() {
@@ -269,7 +289,7 @@ function renderPlanner() {
 
   plannerEmpty.hidden = true;
   plannerCanvas.innerHTML = createPlannerSvg(occurrences);
-  plannerCanvas.querySelectorAll(".planner-event").forEach((element) => {
+  plannerCanvas.querySelectorAll(".planner-hitbox").forEach((element) => {
     element.addEventListener("click", () => {
       editEntryInstance(element.dataset.entryId, Number(element.dataset.day));
     });
@@ -326,6 +346,7 @@ function createPlannerSvg(occurrences) {
         <text x="${x + 18}" y="${titleY}" fill="#ffffff" font-size="15" font-weight="700">${title}</text>
         <text x="${x + 18}" y="${subY}" fill="rgba(255,255,255,0.92)" font-size="12">${line2}</text>
         ${line3 ? `<text x="${x + 18}" y="${noteY}" fill="rgba(255,255,255,0.84)" font-size="12">${line3}</text>` : ""}
+        <rect class="planner-hitbox" data-entry-id="${entry.id}" data-day="${day}" x="${x}" y="${top}" width="${width}" height="${height}" rx="18" fill="rgba(255,255,255,0.001)" />
       </g>
     `;
   }).join("");
@@ -357,6 +378,7 @@ function editEntry(entryId) {
   }
 
   currentEditContext = { scope: "series", entryId: entry.id };
+  setEditContextBanner("Estás editando toda la serie de este bloque.");
   document.querySelector("#entry-id").value = entry.id;
   entryType.value = entry.type;
   syncEntryPersonSelect();
@@ -385,6 +407,7 @@ function editEntryInstance(entryId, day) {
   }
 
   currentEditContext = { scope: "instance", entryId: entry.id, day };
+  setEditContextBanner(`Estás editando solo esta ocurrencia del ${DAYS[day]}.`);
   document.querySelector("#entry-id").value = "";
   entryType.value = entry.type;
   syncEntryPersonSelect();
@@ -403,6 +426,7 @@ function editEntryInstance(entryId, day) {
 
 function resetForm() {
   currentEditContext = null;
+  setEditContextBanner("");
   entryForm.reset();
   document.querySelector("#entry-id").value = "";
   entryType.value = "activity";
@@ -730,6 +754,11 @@ function syncRepeatDaySelectionFromDay() {
 
 function formatRepeatDays(days) {
   return normalizeRepeatDays({ day: 0, repeatDays: days }).map((day) => DAY_SHORT[day]).join(", ");
+}
+
+function setEditContextBanner(message) {
+  editContextBanner.textContent = message;
+  editContextBanner.hidden = !message;
 }
 
 function saveEditedInstance(entry) {
