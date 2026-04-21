@@ -2,6 +2,10 @@
 
 Small internal weekly planner for family activities and commuting blocks.
 
+## Introduction
+
+This project is a simple weekly planner designed to get out of your way and let you focus on organizing your life. It follows a philosophy similar to Excalidraw—fully browser-based, lightweight, and instantly usable—while still supporting self-hosting for those who want full control. The goal is straightforward: enable anyone to plan their week without friction, no accounts, no setup, just open it and start planning.
+
 ## Features
 
 - Two block types: `activity` and `transport`
