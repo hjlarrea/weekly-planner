@@ -42,17 +42,12 @@ const jsonUpload = document.querySelector("#json-upload");
 const repeatDaysWrap = document.querySelector("#repeat-days-wrap");
 const repeatDayInputs = Array.from(document.querySelectorAll('input[name="repeat-day"]'));
 const addPersonButton = document.querySelector("#add-person");
-const installAppButton = document.querySelector("#install-app");
 
 let currentEditContext = null;
 let pendingPersonFocusId = null;
-let deferredInstallPrompt = null;
 
 if (addPersonButton) {
   addPersonButton.addEventListener("click", addPerson);
-}
-if (installAppButton) {
-  installAppButton.addEventListener("click", handleInstallApp);
 }
 
 document.querySelector("#seed-week").addEventListener("click", loadDemoWeek);
@@ -68,8 +63,6 @@ entryDay.addEventListener("change", syncRepeatDaySelectionFromDay);
 entryRepeat.addEventListener("change", syncRepeatControls);
 repeatDayInputs.forEach((input) => input.addEventListener("change", handleRepeatDayToggle));
 entryForm.addEventListener("submit", saveEntry);
-window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-window.addEventListener("appinstalled", handleAppInstalled);
 
 render();
 initializeAppShell();
@@ -99,7 +92,6 @@ function persistAndRender() {
 
 function initializeAppShell() {
   registerServiceWorker();
-  updateInstallButtonVisibility();
 }
 
 function registerServiceWorker() {
@@ -110,72 +102,6 @@ function registerServiceWorker() {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("/sw.js").catch(() => {});
   });
-}
-
-function handleBeforeInstallPrompt(event) {
-  event.preventDefault();
-  deferredInstallPrompt = event;
-  updateInstallButtonVisibility();
-}
-
-async function handleInstallApp() {
-  if (deferredInstallPrompt) {
-    deferredInstallPrompt.prompt();
-    await deferredInstallPrompt.userChoice.catch(() => {});
-    deferredInstallPrompt = null;
-    updateInstallButtonVisibility();
-    return;
-  }
-
-  if (isIosInstallCandidate()) {
-    window.alert("En Safari, tocá Compartir y después 'Agregar a pantalla de inicio'.");
-    return;
-  }
-
-  if (isFirefoxBrowser()) {
-    window.alert("Firefox no ofrece instalación PWA desde esta página. Para instalarla como app, abrila en Chrome o Edge. En iPhone/iPad, usá Safari y 'Agregar a pantalla de inicio'.");
-    return;
-  }
-
-  window.alert("Este navegador no mostró el prompt de instalación. Probá con Chrome o Edge para instalar la app desde esta página.");
-}
-
-function handleAppInstalled() {
-  deferredInstallPrompt = null;
-  updateInstallButtonVisibility();
-}
-
-function updateInstallButtonVisibility() {
-  if (!installAppButton) {
-    return;
-  }
-
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
-  installAppButton.hidden = isStandalone;
-
-  if (deferredInstallPrompt) {
-    installAppButton.textContent = "Instalar app";
-    return;
-  }
-
-  if (isIosInstallCandidate()) {
-    installAppButton.textContent = "Cómo instalar";
-    return;
-  }
-
-  installAppButton.textContent = "Instalar app";
-}
-
-function isIosInstallCandidate() {
-  const userAgent = window.navigator.userAgent.toLowerCase();
-  const isIos = /iphone|ipad|ipod/.test(userAgent);
-  const isSafari = /safari/.test(userAgent) && !/crios|fxios|edgios/.test(userAgent);
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
-  return isIos && isSafari && !isStandalone;
-}
-
-function isFirefoxBrowser() {
-  return /firefox|fxios/i.test(window.navigator.userAgent);
 }
 
 function persistState() {

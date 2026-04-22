@@ -145,11 +145,6 @@ h3 {
   flex-wrap: wrap;
 }
 
-#install-app {
-  display: inline-flex;
-  align-items: center;
-}
-
 .people-bar {
   margin-bottom: 1.25rem;
 }
