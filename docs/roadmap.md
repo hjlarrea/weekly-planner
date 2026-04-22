@@ -1,7 +1,7 @@
 # Roadmap
 
-- [ ] Improve text rendering in smaller cards
-- [ ] Differentiate transport from appointments by adding an icon
+- [x] Improve text rendering in smaller cards
+- [x] Differentiate transport from appointments by adding an icon
 - [ ] Improve overlapping rendering logic (more [here]())
 - [ ] Implement web analytics to measure site's performance
 - [ ] Implement SEO improvement parameters (Google Search Console)
