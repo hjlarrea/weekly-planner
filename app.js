@@ -423,18 +423,21 @@ function createPlannerSvg(occurrences) {
     const titleY = top + 22;
     const subY = top + 40;
     const noteY = top + 57;
-    const title = escapeHtml(entry.title);
+    const icon = entry.type === "transport" ? "🚗︎" : "🗓︎";
+    const title = escapeHtml(`${icon} ${entry.title}`);
     const personName = escapeHtml(person?.name || "Sin asignar");
     const line2 = escapeHtml(`${entry.start} - ${entry.end} · ${personName}`);
     const line3 = escapeHtml(entry.location || entry.notes || "");
+    const isCompactCard = height < 70;
+    const canShowThreeLines = height >= 90;
 
     return `
       <g class="planner-event" data-entry-id="${entry.id}" data-day="${day}">
         <rect x="${x}" y="${top}" width="${width}" height="${height}" rx="18" fill="${fill}" opacity="0.88" />
         <rect x="${x}" y="${top}" width="8" height="${height}" rx="18" fill="${stripe}" opacity="0.92" />
         <text class="planner-edit-title" data-entry-id="${entry.id}" data-day="${day}" x="${x + 18}" y="${titleY}" fill="#ffffff" font-size="15" font-weight="700">${title}</text>
-        <text x="${x + 18}" y="${subY}" fill="rgba(255,255,255,0.92)" font-size="12">${line2}</text>
-        ${line3 ? `<text x="${x + 18}" y="${noteY}" fill="rgba(255,255,255,0.84)" font-size="12">${line3}</text>` : ""}
+        ${isCompactCard ? "" : `<text x="${x + 18}" y="${subY}" fill="rgba(255,255,255,0.92)" font-size="12">${line2}</text>`}
+        ${!isCompactCard && canShowThreeLines && line3 ? `<text x="${x + 18}" y="${noteY}" fill="rgba(255,255,255,0.84)" font-size="12">${line3}</text>` : ""}
       </g>
     `;
   }).join("");
