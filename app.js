@@ -423,19 +423,25 @@ function createPlannerSvg(occurrences) {
     const titleY = top + 22;
     const subY = top + 40;
     const noteY = top + 57;
-    const icon = entry.type === "transport" ? "🚗︎" : "🗓︎";
-    const title = escapeHtml(`${icon} ${entry.title}`);
+    const iconX = x + 18;
+    const iconY = top + 11;
+    const titleX = x + 42;
+    const title = escapeHtml(entry.title);
     const personName = escapeHtml(person?.name || "Sin asignar");
     const line2 = escapeHtml(`${entry.start} - ${entry.end} · ${personName}`);
     const line3 = escapeHtml(entry.location || entry.notes || "");
     const isCompactCard = height < 70;
     const canShowThreeLines = height >= 90;
+    const iconMarkup = entry.type === "transport"
+      ? createTransportIcon(iconX, iconY)
+      : createActivityIcon(iconX, iconY);
 
     return `
       <g class="planner-event" data-entry-id="${entry.id}" data-day="${day}">
         <rect x="${x}" y="${top}" width="${width}" height="${height}" rx="18" fill="${fill}" opacity="0.88" />
         <rect x="${x}" y="${top}" width="8" height="${height}" rx="18" fill="${stripe}" opacity="0.92" />
-        <text class="planner-edit-title" data-entry-id="${entry.id}" data-day="${day}" x="${x + 18}" y="${titleY}" fill="#ffffff" font-size="15" font-weight="700">${title}</text>
+        ${iconMarkup}
+        <text class="planner-edit-title" data-entry-id="${entry.id}" data-day="${day}" x="${titleX}" y="${titleY}" fill="#ffffff" font-size="15" font-weight="700">${title}</text>
         ${isCompactCard ? "" : `<text x="${x + 18}" y="${subY}" fill="rgba(255,255,255,0.92)" font-size="12">${line2}</text>`}
         ${!isCompactCard && canShowThreeLines && line3 ? `<text x="${x + 18}" y="${noteY}" fill="rgba(255,255,255,0.84)" font-size="12">${line3}</text>` : ""}
       </g>
@@ -459,6 +465,28 @@ function createPlannerSvg(occurrences) {
       <line x1="${labelWidth}" y1="${svgHeight}" x2="${svgWidth}" y2="${svgHeight}" stroke="rgba(74,54,40,0.15)" />
       ${blocks}
     </svg>
+  `;
+}
+
+function createTransportIcon(x, y) {
+  return `
+    <g aria-hidden="true">
+      <rect x="${x + 1}" y="${y + 6}" width="16" height="5" rx="2.5" fill="rgba(255,255,255,0.96)" />
+      <path d="M ${x + 4} ${y + 6} L ${x + 7} ${y + 2} H ${x + 12} L ${x + 15} ${y + 6} Z" fill="rgba(255,255,255,0.96)" />
+      <circle cx="${x + 5}" cy="${y + 12}" r="2" fill="${"#8c3d20"}" />
+      <circle cx="${x + 13}" cy="${y + 12}" r="2" fill="${"#8c3d20"}" />
+    </g>
+  `;
+}
+
+function createActivityIcon(x, y) {
+  return `
+    <g aria-hidden="true">
+      <rect x="${x + 1}" y="${y + 2}" width="16" height="14" rx="3" fill="none" stroke="rgba(255,255,255,0.96)" stroke-width="1.5" />
+      <line x1="${x + 5}" y1="${y}" x2="${x + 5}" y2="${y + 4}" stroke="rgba(255,255,255,0.96)" stroke-width="1.5" stroke-linecap="round" />
+      <line x1="${x + 13}" y1="${y}" x2="${x + 13}" y2="${y + 4}" stroke="rgba(255,255,255,0.96)" stroke-width="1.5" stroke-linecap="round" />
+      <line x1="${x + 1}" y1="${y + 6}" x2="${x + 17}" y2="${y + 6}" stroke="rgba(255,255,255,0.96)" stroke-width="1.5" />
+    </g>
   `;
 }
 
