@@ -11,6 +11,14 @@ const DAYS = [
 const DAY_SHORT = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 const HOURS = Array.from({ length: 17 }, (_, index) => 6 + index);
 const HOUR_HEIGHT = 72;
+const PLANNER_LAYOUT = {
+  dayWidth: 180,
+  labelWidth: 88,
+  headerHeight: 60,
+};
+const PLANNER_STEP_MINUTES = 15;
+const PLANNER_START_MINUTES = HOURS[0] * 60;
+const PLANNER_END_MINUTES = (HOURS[HOURS.length - 1] + 1) * 60;
 const DEFAULT_STATE = {
   people: [
     { id: crypto.randomUUID(), name: "Persona 1", color: "#e76f51" },
@@ -45,6 +53,9 @@ const addPersonButton = document.querySelector("#add-person");
 
 let currentEditContext = null;
 let pendingPersonFocusId = null;
+let plannerSelection = null;
+let plannerSelectionDraft = null;
+let plannerSelectionSession = null;
 
 if (addPersonButton) {
   addPersonButton.addEventListener("click", addPerson);
@@ -296,25 +307,22 @@ function renderLegend() {
 
 function renderPlanner() {
   const occurrences = expandEntries(state.entries);
-  if (!occurrences.length) {
-    plannerCanvas.innerHTML = "";
-    plannerEmpty.hidden = false;
-    return;
-  }
-
-  plannerEmpty.hidden = true;
-  plannerCanvas.innerHTML = createPlannerSvg(occurrences);
+  plannerEmpty.hidden = occurrences.length > 0;
+  plannerCanvas.innerHTML = createPlannerSvg(occurrences, plannerSelectionDraft || plannerSelection);
   plannerCanvas.querySelectorAll(".planner-edit-title").forEach((element) => {
     element.addEventListener("click", () => {
       editEntryInstance(element.dataset.entryId, Number(element.dataset.day));
     });
   });
+
+  const plannerSvg = plannerCanvas.querySelector("#planner-svg");
+  if (plannerSvg) {
+    plannerSvg.addEventListener("pointerdown", handlePlannerPointerDown);
+  }
 }
 
-function createPlannerSvg(occurrences) {
-  const dayWidth = 180;
-  const labelWidth = 88;
-  const headerHeight = 60;
+function createPlannerSvg(occurrences, selection) {
+  const { dayWidth, labelWidth, headerHeight } = PLANNER_LAYOUT;
   const svgWidth = labelWidth + DAYS.length * dayWidth;
   const svgHeight = headerHeight + HOURS.length * HOUR_HEIGHT;
 
@@ -334,6 +342,8 @@ function createPlannerSvg(occurrences) {
       <text x="${x + 18}" y="34" fill="#2f241c" font-size="18" font-family="Georgia, serif">${DAY_SHORT[index]}</text>
     `;
   }).join("");
+
+  const selectionMarkup = selection ? createPlannerSelectionMarkup(selection, dayWidth, labelWidth, headerHeight) : "";
 
   const blocks = occurrences.map((occurrence) => {
     const { entry, day } = occurrence;
@@ -389,8 +399,27 @@ function createPlannerSvg(occurrences) {
       ${dayColumns}
       ${hourLines}
       <line x1="${labelWidth}" y1="${svgHeight}" x2="${svgWidth}" y2="${svgHeight}" stroke="rgba(74,54,40,0.15)" />
+      ${selectionMarkup}
       ${blocks}
     </svg>
+  `;
+}
+
+function createPlannerSelectionMarkup(selection, dayWidth, labelWidth, headerHeight) {
+  const startMinutes = toMinutes(selection.start);
+  const endMinutes = toMinutes(selection.end);
+  const top = headerHeight + ((startMinutes - PLANNER_START_MINUTES) / 60) * HOUR_HEIGHT;
+  const height = Math.max(((endMinutes - startMinutes) / 60) * HOUR_HEIGHT, 18);
+  const x = labelWidth + selection.day * dayWidth + 8;
+  const width = dayWidth - 16;
+  const label = escapeHtml(`${DAY_SHORT[selection.day]} ${selection.start} - ${selection.end}`);
+  const labelY = Math.max(top + 22, headerHeight + 22);
+
+  return `
+    <g class="planner-selection" aria-hidden="true">
+      <rect x="${x}" y="${top}" width="${width}" height="${height}" rx="18" />
+      <text x="${x + 14}" y="${labelY}">${label}</text>
+    </g>
   `;
 }
 
@@ -422,6 +451,8 @@ function editEntry(entryId) {
     return;
   }
 
+  clearPlannerSelection();
+  renderPlanner();
   currentEditContext = { scope: "series", entryId: entry.id };
   setEditContextBanner("Estás editando toda la serie de este bloque.");
   document.querySelector("#entry-id").value = entry.id;
@@ -446,6 +477,8 @@ function editEntryInstance(entryId, day) {
     return;
   }
 
+  clearPlannerSelection();
+  renderPlanner();
   if ((entry.repeatMode || "none") === "none") {
     editEntry(entryId);
     return;
@@ -471,6 +504,7 @@ function editEntryInstance(entryId, day) {
 
 function resetForm() {
   currentEditContext = null;
+  clearPlannerSelection();
   setEditContextBanner("");
   entryForm.reset();
   document.querySelector("#entry-id").value = "";
@@ -480,6 +514,7 @@ function resetForm() {
   setRepeatDaySelection([0]);
   syncEntryPersonSelect();
   syncRepeatControls();
+  renderPlanner();
 }
 
 function getPersonForEntry(entry) {
@@ -804,6 +839,142 @@ function formatRepeatDays(days) {
 function setEditContextBanner(message) {
   editContextBanner.textContent = message;
   editContextBanner.hidden = !message;
+}
+
+function handlePlannerPointerDown(event) {
+  if (event.button !== 0 || event.target.closest(".planner-edit-title")) {
+    return;
+  }
+
+  const plannerSvg = plannerCanvas.querySelector("#planner-svg");
+  const slot = getPlannerSlotFromPointer(event, plannerSvg);
+  if (!slot) {
+    return;
+  }
+
+  event.preventDefault();
+  plannerSelectionSession = { pointerId: event.pointerId, day: slot.day, startMinutes: toMinutes(slot.start) };
+  plannerSelectionDraft = slot;
+  renderPlanner();
+
+  window.addEventListener("pointermove", handlePlannerPointerMove);
+  window.addEventListener("pointerup", handlePlannerPointerUp);
+}
+
+function handlePlannerPointerMove(event) {
+  if (!plannerSelectionSession || event.pointerId !== plannerSelectionSession.pointerId) {
+    return;
+  }
+
+  const plannerSvg = plannerCanvas.querySelector("#planner-svg");
+  const slot = getPlannerSlotFromPointer(event, plannerSvg, plannerSelectionSession.day);
+  if (!slot) {
+    return;
+  }
+
+  plannerSelectionDraft = buildPlannerSelection(plannerSelectionSession.day, plannerSelectionSession.startMinutes, toMinutes(slot.start));
+  renderPlanner();
+}
+
+function handlePlannerPointerUp(event) {
+  if (!plannerSelectionSession || event.pointerId !== plannerSelectionSession.pointerId) {
+    return;
+  }
+
+  const finalSelection = plannerSelectionDraft || buildPlannerSelection(
+    plannerSelectionSession.day,
+    plannerSelectionSession.startMinutes,
+    plannerSelectionSession.startMinutes
+  );
+
+  plannerSelection = finalSelection;
+  plannerSelectionDraft = null;
+  plannerSelectionSession = null;
+  window.removeEventListener("pointermove", handlePlannerPointerMove);
+  window.removeEventListener("pointerup", handlePlannerPointerUp);
+  renderPlanner();
+  applyPlannerSelectionToForm(finalSelection);
+}
+
+function getPlannerSlotFromPointer(event, plannerSvg, lockedDay = null) {
+  if (!plannerSvg) {
+    return null;
+  }
+
+  const { dayWidth, labelWidth, headerHeight } = PLANNER_LAYOUT;
+  const bounds = plannerSvg.getBoundingClientRect();
+  const scaleX = plannerSvg.viewBox.baseVal.width / bounds.width;
+  const scaleY = plannerSvg.viewBox.baseVal.height / bounds.height;
+  const x = (event.clientX - bounds.left) * scaleX;
+  const y = (event.clientY - bounds.top) * scaleY;
+
+  if (
+    x < labelWidth ||
+    x > plannerSvg.viewBox.baseVal.width ||
+    y < headerHeight ||
+    y > plannerSvg.viewBox.baseVal.height
+  ) {
+    return null;
+  }
+
+  const day = lockedDay ?? Math.min(Math.floor((x - labelWidth) / dayWidth), DAYS.length - 1);
+  const rawMinutes = PLANNER_START_MINUTES + ((y - headerHeight) / HOUR_HEIGHT) * 60;
+  const minutes = snapPlannerMinutes(rawMinutes);
+  return buildPlannerSelection(day, minutes, minutes);
+}
+
+function buildPlannerSelection(day, startMinutes, endMinutes) {
+  const boundedDay = Math.max(0, Math.min(day, DAYS.length - 1));
+  const safeStart = snapPlannerMinutes(startMinutes);
+  const safeEnd = snapPlannerMinutes(endMinutes);
+  const minMinutes = Math.min(safeStart, safeEnd);
+  const maxMinutes = Math.max(safeStart, safeEnd) + PLANNER_STEP_MINUTES;
+
+  return {
+    day: boundedDay,
+    start: minutesToTime(minMinutes),
+    end: minutesToTime(Math.min(maxMinutes, PLANNER_END_MINUTES)),
+  };
+}
+
+function snapPlannerMinutes(minutes) {
+  const stepped = Math.round(minutes / PLANNER_STEP_MINUTES) * PLANNER_STEP_MINUTES;
+  return Math.max(PLANNER_START_MINUTES, Math.min(stepped, PLANNER_END_MINUTES - PLANNER_STEP_MINUTES));
+}
+
+function minutesToTime(minutes) {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
+}
+
+function applyPlannerSelectionToForm(selection) {
+  const previousType = entryType.value || "activity";
+  const previousPerson = entryPerson.value;
+
+  resetForm();
+  entryType.value = previousType;
+  syncEntryPersonSelect();
+  if (state.people.some((person) => person.id === previousPerson)) {
+    entryPerson.value = previousPerson;
+  }
+
+  plannerSelection = selection;
+  entryDay.value = String(selection.day);
+  document.querySelector("#entry-start").value = selection.start;
+  document.querySelector("#entry-end").value = selection.end;
+  setRepeatDaySelection([selection.day]);
+  setEditContextBanner(`Nuevo bloque seleccionado: ${DAYS[selection.day]}, ${selection.start} a ${selection.end}. Completá los datos y guardá.`);
+  renderPlanner();
+  document.querySelector("#entry-title").focus();
+}
+
+function clearPlannerSelection() {
+  window.removeEventListener("pointermove", handlePlannerPointerMove);
+  window.removeEventListener("pointerup", handlePlannerPointerUp);
+  plannerSelection = null;
+  plannerSelectionDraft = null;
+  plannerSelectionSession = null;
 }
 
 function saveEditedInstance(entry) {

@@ -371,6 +371,11 @@ h3 {
   min-width: 980px;
 }
 
+.planner-canvas svg {
+  display: block;
+  touch-action: none;
+}
+
 .empty-state {
   position: absolute;
   inset: 0;
@@ -379,6 +384,7 @@ h3 {
   color: var(--muted);
   text-align: center;
   padding: 2rem;
+  pointer-events: none;
 }
 
 .empty-state[hidden] {
@@ -432,6 +438,19 @@ th {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
+}
+
+.planner-selection rect {
+  fill: rgba(184, 92, 56, 0.2);
+  stroke: rgba(140, 61, 32, 0.9);
+  stroke-width: 2;
+  stroke-dasharray: 8 6;
+}
+
+.planner-selection text {
+  fill: #7a341d;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .planner-event * {

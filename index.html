@@ -142,12 +142,12 @@
             <div class="field-row split">
               <label>
                 Desde
-                <input id="entry-start" type="time" required />
+                <input id="entry-start" type="time" step="900" required />
               </label>
 
               <label>
                 Hasta
-                <input id="entry-end" type="time" required />
+                <input id="entry-end" type="time" step="900" required />
               </label>
             </div>
 
@@ -190,7 +190,7 @@
 
           <div class="planner-canvas-wrap">
             <div id="planner-empty" class="empty-state">
-              Agregá actividades y traslados para completar la vista semanal.
+              Arrastrá sobre un día y horario para pintar un bloque nuevo, o cargá actividades y traslados para completar la vista semanal.
             </div>
             <div id="planner-canvas" class="planner-canvas"></div>
           </div>
