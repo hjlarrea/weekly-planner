@@ -23,6 +23,11 @@ npm start
 
 Then open `http://localhost:4173`.
 
+## License
+
+This project is licensed under the Apache License 2.0. Any redistribution must
+preserve the license text and applicable attribution notices.
+
 ## Docker
 
 ```bash
