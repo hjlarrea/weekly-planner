@@ -23,11 +23,6 @@ npm start
 
 Then open `http://localhost:4173`.
 
-## License
-
-This project is licensed under the Apache License 2.0. Any redistribution must
-preserve the license text and applicable attribution notices.
-
 ## Docker
 
 ```bash
@@ -36,8 +31,12 @@ docker compose up --build
 
 Then open `http://localhost:4173`.
 
+## License
+
+This project is licensed under the Apache License 2.0. Any redistribution must
+preserve the license text and applicable attribution notices.
+
 ## Notes
 
 - No backend is required.
 - Data stays in the browser unless you export/import JSON.
-- If you later want SQLite, the current structure is a good base for adding a tiny API layer.
