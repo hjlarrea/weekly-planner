@@ -3,8 +3,10 @@ FROM nginx:1.27-alpine
 COPY index.html /usr/share/nginx/html/index.html
 COPY styles.css /usr/share/nginx/html/styles.css
 COPY app.js /usr/share/nginx/html/app.js
+COPY config.js /usr/share/nginx/html/config.js
 COPY manifest.json /usr/share/nginx/html/manifest.json
 COPY sw.js /usr/share/nginx/html/sw.js
 COPY icons /usr/share/nginx/html/icons
+COPY docker-entrypoint.d/40-write-config.sh /docker-entrypoint.d/40-write-config.sh
 
 EXPOSE 80

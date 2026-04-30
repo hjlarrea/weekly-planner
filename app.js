@@ -1,4 +1,5 @@
 const STORAGE_KEY = "weekly-planner-state-v1";
+const DEFAULT_SITE_NAME = "Planner Semanal";
 const DAYS = [
   "Lunes",
   "Martes",
@@ -102,7 +103,28 @@ function persistAndRender() {
 }
 
 function initializeAppShell() {
+  applySiteBranding();
   registerServiceWorker();
+}
+
+function applySiteBranding() {
+  const configuredSiteName = window.APP_CONFIG?.siteName;
+  const siteName =
+    typeof configuredSiteName === "string" && configuredSiteName.trim()
+      ? configuredSiteName.trim()
+      : DEFAULT_SITE_NAME;
+
+  document.title = siteName;
+
+  const appTitleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+  if (appTitleMeta) {
+    appTitleMeta.setAttribute("content", siteName);
+  }
+
+  const siteNameHeading = document.querySelector("#site-name");
+  if (siteNameHeading) {
+    siteNameHeading.textContent = siteName;
+  }
 }
 
 function registerServiceWorker() {
