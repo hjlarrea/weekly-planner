@@ -320,8 +320,8 @@ function renderLegend() {
   });
 
   const occurrences = expandEntries(state.entries);
-  const activities = occurrences.filter((entry) => entry.type === "activity").length;
-  const transport = occurrences.filter((entry) => entry.type === "transport").length;
+  const activities = occurrences.filter((occurrence) => occurrence.entry.type === "activity").length;
+  const transport = occurrences.filter((occurrence) => occurrence.entry.type === "transport").length;
   plannerSummary.textContent = occurrences.length
     ? `${occurrences.length} bloques esta semana: ${activities} actividades y ${transport} traslados.`
     : "Todavía no hay bloques cargados.";
