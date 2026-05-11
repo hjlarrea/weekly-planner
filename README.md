@@ -23,6 +23,27 @@ npm start
 
 Then open `http://localhost:4173`.
 
+## Build
+
+Generate a static output folder with the files needed to deploy or serve the app:
+
+```bash
+npm run build
+```
+
+This creates `dist/` with the runtime assets:
+
+- `index.html`
+- `styles.css`
+- `app.js`
+- `config.js`
+- `manifest.json`
+- `sw.js`
+- `icons/`
+- `img/`
+
+The `dist/` folder is ignored by git.
+
 ## Docker
 
 ```bash
@@ -40,3 +61,5 @@ preserve the license text and applicable attribution notices.
 
 - No backend is required.
 - Data stays in the browser unless you export/import JSON.
+- `npm start` serves the source files directly for a simple local preview.
+- `npm run build` prepares a static `dist/` directory for deployment or external hosting.
