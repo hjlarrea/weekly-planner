@@ -15,7 +15,9 @@ This project is a simple weekly planner designed to get out of your way and let 
 - Lightweight local persistence with `localStorage`
 - JSON import/export for easy backup or sharing
 
-## Run
+## Run - NPM
+
+For development purposes, you can run the following command after introducing your changes:
 
 ```bash
 npm start
@@ -45,7 +47,22 @@ This creates `dist/` with the runtime assets:
 
 The `dist/` folder is ignored by git.
 
-### Build Version Stamp
+## Docker
+
+```bash
+docker compose up --build
+```
+
+Then open `http://localhost:4173`.
+
+## Running from the published image
+
+```bash
+docker pull ghcr.io/hjlarrea/weekly-planner:v0.1.0
+docker run -d --rm weekly-planner:v0.1.0
+```
+
+## Version Stamp
 
 Build artifacts expose a version stamp in the footer of the site.
 
@@ -56,14 +73,6 @@ This applies to both:
 
 - `npm run build` output in `dist/`
 - Docker images built from the repository
-
-## Docker
-
-```bash
-docker compose up --build
-```
-
-Then open `http://localhost:4173`.
 
 ## License
 
