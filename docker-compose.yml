@@ -2,7 +2,7 @@ services:
   weekly-planner:
     build: .
     environment:
-      SITE_NAME: ${SITE_NAME:-Planner Semanal}
+      SITE_NAME: ${SITE_NAME:-Planner Semanal (Compose)}
     ports:
       - "4173:80"
     restart: unless-stopped
