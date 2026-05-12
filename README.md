@@ -45,6 +45,12 @@ Generate a static output folder with the files needed to deploy or serve the app
 npm run build
 ```
 
+To override the default site name in the generated artifact:
+
+```bash
+SITE_NAME="Mi Planner" npm run build
+```
+
 This creates `dist/` with the runtime assets:
 
 - `index.html`
@@ -86,6 +92,7 @@ Build artifacts expose a version stamp in the footer of the site.
 
 - If the build runs from a tagged commit, the tag becomes the visible version.
 - If the build runs from an untagged commit, the short git SHA becomes the visible version.
+- `npm run build` resolves that version when generating `dist/build-meta.js`.
 
 This applies to both:
 
@@ -102,5 +109,6 @@ preserve the license text and applicable attribution notices.
 - No backend is required.
 - Data stays in the browser unless you export/import JSON.
 - `SITE_NAME` is the site-name override for both `npm start` and Docker.
+- `SITE_NAME` is also honored by `npm run build` when generating `dist/config.js` and `dist/manifest.json`.
 - `npm start` serves the source files directly for a simple local preview.
 - `npm run build` prepares a static `dist/` directory for deployment or external hosting.

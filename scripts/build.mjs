@@ -18,6 +18,7 @@ const entriesToCopy = [
 ];
 
 const DEFAULT_SITE_NAME = "Planner Semanal";
+const SITE_NAME = normalizeSiteName(process.env.SITE_NAME);
 
 rmSync(outDir, { force: true, recursive: true });
 mkdirSync(outDir, { recursive: true });
@@ -38,6 +39,11 @@ const buildMetadata = resolveBuildMetadata();
 writeFileSync(
   join(outDir, "build-meta.js"),
   `window.APP_BUILD = ${JSON.stringify(buildMetadata, null, 2)};\n`,
+);
+
+writeFileSync(
+  join(outDir, "config.js"),
+  `window.APP_CONFIG = ${JSON.stringify({ siteName: SITE_NAME }, null, 2)};\n`,
 );
 
 writeFileSync(
@@ -68,11 +74,20 @@ function readGitOutput(args) {
   }
 }
 
+function normalizeSiteName(value) {
+  if (typeof value !== "string") {
+    return DEFAULT_SITE_NAME;
+  }
+
+  const trimmed = value.trim();
+  return trimmed || DEFAULT_SITE_NAME;
+}
+
 function buildManifest() {
   return {
     id: "/",
-    name: DEFAULT_SITE_NAME,
-    short_name: DEFAULT_SITE_NAME,
+    name: SITE_NAME,
+    short_name: SITE_NAME,
     description: "Planner semanal familiar para actividades, traslados y organizacion diaria.",
     start_url: "/",
     scope: "/",
