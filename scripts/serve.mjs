@@ -1,13 +1,15 @@
 import { createReadStream, existsSync } from "node:fs";
 import { stat } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 import http from "node:http";
-import { extname, join, normalize } from "node:path";
+import { dirname, extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_SITE_NAME = "Planner Semanal";
 const PORT = Number(process.env.PORT || 4173);
 const SITE_NAME = normalizeSiteName(process.env.SITE_NAME);
-const rootDir = join(fileURLToPath(new URL("..", import.meta.url)), "..");
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const rootDir = join(__dirname, "..");
 
 const CONTENT_TYPES = {
   ".css": "text/css; charset=utf-8",
@@ -33,6 +35,15 @@ const server = http.createServer(async (request, response) => {
 
   if (pathname === "/manifest.json") {
     sendText(response, "application/json; charset=utf-8", JSON.stringify(buildManifest(), null, 2) + "\n");
+    return;
+  }
+
+  if (pathname === "/build-meta.js") {
+    sendText(
+      response,
+      "application/javascript; charset=utf-8",
+      `window.APP_BUILD = ${JSON.stringify(resolveBuildMetadata(), null, 2)};\n`,
+    );
     return;
   }
 
@@ -98,6 +109,27 @@ function buildManifest() {
       },
     ],
   };
+}
+
+function resolveBuildMetadata() {
+  const commit = readGitOutput(["rev-parse", "--short", "HEAD"]);
+  const tag = readGitOutput(["tag", "--points-at", "HEAD"])
+    .split("\n")
+    .map((line) => line.trim())
+    .find(Boolean);
+
+  return {
+    version: tag || commit || "unknown",
+    commit: commit || "unknown",
+  };
+}
+
+function readGitOutput(args) {
+  try {
+    return execFileSync("git", args, { cwd: rootDir, encoding: "utf8" }).trim();
+  } catch {
+    return "";
+  }
 }
 
 function resolveStaticPath(pathname) {
