@@ -29,6 +29,14 @@ npm start
 
 Then open `http://localhost:4173`.
 
+To override the default site name locally, set `SITE_NAME` before starting the server:
+
+```bash
+SITE_NAME="Mi Planner" npm start
+```
+
+If `SITE_NAME` is not defined, the app uses `Planner Semanal`.
+
 ## Build
 
 Generate a static output folder with the files needed to deploy or serve the app:
@@ -59,6 +67,12 @@ docker compose up --build
 
 Then open `http://localhost:4173`.
 
+To override the default site name in Docker:
+
+```bash
+SITE_NAME="Mi Planner" docker compose up --build
+```
+
 ## Running from the published image
 
 ```bash
@@ -87,5 +101,6 @@ preserve the license text and applicable attribution notices.
 
 - No backend is required.
 - Data stays in the browser unless you export/import JSON.
+- `SITE_NAME` is the site-name override for both `npm start` and Docker.
 - `npm start` serves the source files directly for a simple local preview.
 - `npm run build` prepares a static `dist/` directory for deployment or external hosting.
