@@ -4,7 +4,7 @@
 
 # Weekly Planner
 
-Small internal weekly planner for family activities and commuting blocks.
+Small internal weekly planner for family activities and commuting blocks. Visit the official production site at: https://armatusemana.com.ar
 
 ## Introduction
 
