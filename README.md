@@ -1,3 +1,7 @@
+[![Release Image](https://github.com/hjlarrea/weekly-planner/actions/workflows/release-image.yml/badge.svg)](https://github.com/hjlarrea/weekly-planner/actions/workflows/release-image.yml)
+
+[![Deploy to production](https://github.com/hjlarrea/weekly-planner/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/hjlarrea/weekly-planner/actions/workflows/deploy-production.yml)
+
 # Weekly Planner
 
 Small internal weekly planner for family activities and commuting blocks.
@@ -59,7 +63,7 @@ Then open `http://localhost:4173`.
 
 ```bash
 docker pull ghcr.io/hjlarrea/weekly-planner:v0.1.0
-docker run -d --rm weekly-planner:v0.1.0
+docker run -d --rm ghcr.io/hjlarrea/weekly-planner:v0.1.0
 ```
 
 ## Version Stamp
