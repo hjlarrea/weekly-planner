@@ -37,12 +37,25 @@ This creates `dist/` with the runtime assets:
 - `styles.css`
 - `app.js`
 - `config.js`
+- `build-meta.js`
 - `manifest.json`
 - `sw.js`
 - `icons/`
 - `img/`
 
 The `dist/` folder is ignored by git.
+
+### Build Version Stamp
+
+Build artifacts expose a version stamp in the footer of the site.
+
+- If the build runs from a tagged commit, the tag becomes the visible version.
+- If the build runs from an untagged commit, the short git SHA becomes the visible version.
+
+This applies to both:
+
+- `npm run build` output in `dist/`
+- Docker images built from the repository
 
 ## Docker
 

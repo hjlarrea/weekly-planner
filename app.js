@@ -104,6 +104,7 @@ function persistAndRender() {
 
 function initializeAppShell() {
   applySiteBranding();
+  applyBuildMetadata();
   registerServiceWorker();
 }
 
@@ -125,6 +126,21 @@ function applySiteBranding() {
   if (siteNameHeading) {
     siteNameHeading.textContent = siteName;
   }
+}
+
+function applyBuildMetadata() {
+  const buildVersion = document.querySelector("#build-version");
+  if (!buildVersion) {
+    return;
+  }
+
+  const configuredVersion = window.APP_BUILD?.version;
+  const version =
+    typeof configuredVersion === "string" && configuredVersion.trim()
+      ? configuredVersion.trim()
+      : "desconocida";
+
+  buildVersion.textContent = `version: ${version}`;
 }
 
 function registerServiceWorker() {

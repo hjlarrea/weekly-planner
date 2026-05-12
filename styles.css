@@ -442,6 +442,10 @@ h3 {
   font-size: 0.92rem;
 }
 
+.site-footer a {
+  color: inherit;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
