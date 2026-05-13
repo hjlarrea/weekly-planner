@@ -1,6 +1,6 @@
 [![Release Image](https://github.com/hjlarrea/weekly-planner/actions/workflows/release-image.yml/badge.svg)](https://github.com/hjlarrea/weekly-planner/actions/workflows/release-image.yml)
 
-[![Deploy to production](https://github.com/hjlarrea/weekly-planner/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/hjlarrea/weekly-planner/actions/workflows/deploy-production.yml)
+[![Deploy to Production](https://github.com/hjlarrea/weekly-planner/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/hjlarrea/weekly-planner/actions/workflows/deploy-production.yml)
 
 # Weekly Planner
 
