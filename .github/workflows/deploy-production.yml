@@ -29,7 +29,14 @@ jobs:
           git fetch origin main --depth=1
           git merge-base --is-ancestor "$GITHUB_SHA" "origin/main"
       - name: Build static artifact
-        run: SITE_NAME="${{vars.SITE_NAME}}" npm run build 
+        run: |
+          SITE_NAME="${{ vars.SITE_NAME }}" \
+          SITE_TITLE="${{ vars.SITE_TITLE }}" \
+          SITE_DESCRIPTION="${{ vars.SITE_DESCRIPTION }}" \
+          SITE_URL="${{ vars.SITE_URL }}" \
+          SITE_OG_IMAGE="${{ vars.SITE_OG_IMAGE }}" \
+          SITE_ROBOTS="${{ vars.SITE_ROBOTS }}" \
+          npm run build
       - name: Deploy the site
         run: |
           npm install -g @azure/static-web-apps-cli

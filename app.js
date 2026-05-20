@@ -110,16 +110,31 @@ function initializeAppShell() {
 
 function applySiteBranding() {
   const configuredSiteName = window.APP_CONFIG?.siteName;
+  const configuredSiteTitle = window.APP_CONFIG?.siteTitle;
+  const configuredDescription = window.APP_CONFIG?.siteDescription;
   const siteName =
     typeof configuredSiteName === "string" && configuredSiteName.trim()
       ? configuredSiteName.trim()
       : DEFAULT_SITE_NAME;
+  const siteTitle =
+    typeof configuredSiteTitle === "string" && configuredSiteTitle.trim()
+      ? configuredSiteTitle.trim()
+      : siteName;
 
-  document.title = siteName;
+  document.title = siteTitle;
 
   const appTitleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
   if (appTitleMeta) {
     appTitleMeta.setAttribute("content", siteName);
+  }
+
+  const descriptionMeta = document.querySelector('meta[name="description"]');
+  if (
+    descriptionMeta &&
+    typeof configuredDescription === "string" &&
+    configuredDescription.trim()
+  ) {
+    descriptionMeta.setAttribute("content", configuredDescription.trim());
   }
 
   const siteNameHeading = document.querySelector("#site-name");

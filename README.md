@@ -29,13 +29,16 @@ npm start
 
 Then open `http://localhost:4173`.
 
-To override the default site name locally, set `SITE_NAME` before starting the server:
+To override the local runtime branding, set one or more site configuration variables before starting the server:
 
 ```bash
-SITE_NAME="Mi Planner" npm start
+SITE_NAME="Mi Planner" \
+SITE_TITLE="Mi Planner | Organizador semanal" \
+SITE_DESCRIPTION="Organiza la semana en una sola vista." \
+npm start
 ```
 
-If `SITE_NAME` is not defined, the app uses `Planner Semanal`.
+If these variables are not defined, the app uses the generic self-hosted defaults.
 
 ## Build
 
@@ -45,10 +48,16 @@ Generate a static output folder with the files needed to deploy or serve the app
 npm run build
 ```
 
-To override the default site name in the generated artifact:
+To generate a branded hosted artifact:
 
 ```bash
-SITE_NAME="Mi Planner" npm run build
+SITE_NAME="Arma tu semana!" \
+SITE_TITLE="Arma tu semana! | Planner semanal familiar" \
+SITE_DESCRIPTION="Organiza actividades, traslados y rutinas familiares en una vista semanal simple para imprimir o exportar." \
+SITE_URL="https://armatusemana.com.ar/" \
+SITE_OG_IMAGE="https://armatusemana.com.ar/img/og-image.png" \
+SITE_ROBOTS="index,follow" \
+npm run build
 ```
 
 This creates `dist/` with the runtime assets:
@@ -59,11 +68,16 @@ This creates `dist/` with the runtime assets:
 - `config.js`
 - `build-meta.js`
 - `manifest.json`
+- `robots.txt`
+- `sitemap.xml` when `SITE_URL` is defined
 - `sw.js`
 - `icons/`
 - `img/`
 
 The `dist/` folder is ignored by git.
+
+The build output is where hosted branding and SEO metadata are generated. The
+repository source files remain generic by default.
 
 ## Docker
 
@@ -73,11 +87,17 @@ docker compose up --build
 
 Then open `http://localhost:4173`.
 
-To override the default site name in Docker:
+To override the runtime branding in Docker:
 
 ```bash
-SITE_NAME="Mi Planner" docker compose up --build
+SITE_NAME="Mi Planner" \
+SITE_TITLE="Mi Planner | Organizador semanal" \
+SITE_DESCRIPTION="Organiza la semana en una sola vista." \
+docker compose up --build
 ```
+
+The published Docker image remains generic by default so it can be self-hosted
+without shipping hosted-site branding or domain-specific SEO values.
 
 ## Running from the published image
 
@@ -108,7 +128,14 @@ preserve the license text and applicable attribution notices.
 
 - No backend is required.
 - Data stays in the browser unless you export/import JSON.
-- `SITE_NAME` is the site-name override for both `npm start` and Docker.
-- `SITE_NAME` is also honored by `npm run build` when generating `dist/config.js` and `dist/manifest.json`.
 - `npm start` serves the source files directly for a simple local preview.
 - `npm run build` prepares a static `dist/` directory for deployment or external hosting.
+- The project supports one shared site-configuration model across local runtime, hosted builds, and Docker overrides.
+- `SITE_NAME` is the app or brand name shown in the UI.
+- `SITE_TITLE` is the document title used for the browser tab and hosted SEO metadata.
+- `SITE_DESCRIPTION` is the description used for manifest metadata and hosted SEO metadata.
+- `SITE_URL` is the canonical public URL used for hosted metadata generation.
+- `SITE_OG_IMAGE` is the absolute public URL of the Open Graph image used for hosted sharing metadata.
+- `SITE_ROBOTS` controls the hosted robots meta policy, for example `index,follow` or `noindex,nofollow`.
+- Hosted builds inject SEO metadata into `dist/index.html` and can also generate `robots.txt` and `sitemap.xml`.
+- The self-hosted Docker path stays generic unless you explicitly override it with environment variables.

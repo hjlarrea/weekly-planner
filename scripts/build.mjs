@@ -1,11 +1,20 @@
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  buildIndexHtml,
+  buildManifest,
+  buildRobotsTxt,
+  buildRuntimeConfig,
+  buildSitemapXml,
+  resolveSiteConfig,
+} from "./site-config.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
 const outDir = join(rootDir, "dist");
+const siteConfig = resolveSiteConfig(process.env);
 
 const entriesToCopy = [
   "index.html",
@@ -16,9 +25,6 @@ const entriesToCopy = [
   "icons",
   "img",
 ];
-
-const DEFAULT_SITE_NAME = "Planner Semanal";
-const SITE_NAME = normalizeSiteName(process.env.SITE_NAME);
 
 rmSync(outDir, { force: true, recursive: true });
 mkdirSync(outDir, { recursive: true });
@@ -35,6 +41,7 @@ for (const entry of entriesToCopy) {
 }
 
 const buildMetadata = resolveBuildMetadata();
+const sourceIndexHtml = readFileSync(join(rootDir, "index.html"), "utf8");
 
 writeFileSync(
   join(outDir, "build-meta.js"),
@@ -43,13 +50,21 @@ writeFileSync(
 
 writeFileSync(
   join(outDir, "config.js"),
-  `window.APP_CONFIG = ${JSON.stringify({ siteName: SITE_NAME }, null, 2)};\n`,
+  `window.APP_CONFIG = ${JSON.stringify(buildRuntimeConfig(siteConfig), null, 2)};\n`,
 );
 
 writeFileSync(
   join(outDir, "manifest.json"),
-  JSON.stringify(buildManifest(), null, 2) + "\n",
+  JSON.stringify(buildManifest(siteConfig), null, 2) + "\n",
 );
+
+writeFileSync(join(outDir, "index.html"), buildIndexHtml(sourceIndexHtml, siteConfig));
+writeFileSync(join(outDir, "robots.txt"), buildRobotsTxt(siteConfig));
+
+const sitemapXml = buildSitemapXml(siteConfig);
+if (sitemapXml) {
+  writeFileSync(join(outDir, "sitemap.xml"), sitemapXml);
+}
 
 console.log(`Built static site into ${outDir}`);
 
@@ -72,40 +87,4 @@ function readGitOutput(args) {
   } catch {
     return "";
   }
-}
-
-function normalizeSiteName(value) {
-  if (typeof value !== "string") {
-    return DEFAULT_SITE_NAME;
-  }
-
-  const trimmed = value.trim();
-  return trimmed || DEFAULT_SITE_NAME;
-}
-
-function buildManifest() {
-  return {
-    id: "/",
-    name: SITE_NAME,
-    short_name: SITE_NAME,
-    description: "Planner semanal familiar para actividades, traslados y organizacion diaria.",
-    start_url: "/",
-    scope: "/",
-    display: "standalone",
-    background_color: "#f8f3ea",
-    theme_color: "#b85c38",
-    lang: "es-AR",
-    icons: [
-      {
-        src: "/icons/icon-192.png",
-        sizes: "192x192",
-        type: "image/png",
-      },
-      {
-        src: "/icons/icon-512.png",
-        sizes: "512x512",
-        type: "image/png",
-      },
-    ],
-  };
 }

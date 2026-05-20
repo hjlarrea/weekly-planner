@@ -4,12 +4,12 @@ import { execFileSync } from "node:child_process";
 import http from "node:http";
 import { dirname, extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildManifest, buildRuntimeConfig, resolveSiteConfig } from "./site-config.mjs";
 
-const DEFAULT_SITE_NAME = "Planner Semanal";
 const PORT = Number(process.env.PORT || 4173);
-const SITE_NAME = normalizeSiteName(process.env.SITE_NAME);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
+const siteConfig = resolveSiteConfig(process.env);
 
 const CONTENT_TYPES = {
   ".css": "text/css; charset=utf-8",
@@ -28,13 +28,17 @@ const server = http.createServer(async (request, response) => {
     sendText(
       response,
       "application/javascript; charset=utf-8",
-      `window.APP_CONFIG = ${JSON.stringify({ siteName: SITE_NAME }, null, 2)};\n`,
+      `window.APP_CONFIG = ${JSON.stringify(buildRuntimeConfig(siteConfig), null, 2)};\n`,
     );
     return;
   }
 
   if (pathname === "/manifest.json") {
-    sendText(response, "application/json; charset=utf-8", JSON.stringify(buildManifest(), null, 2) + "\n");
+    sendText(
+      response,
+      "application/json; charset=utf-8",
+      JSON.stringify(buildManifest(siteConfig), null, 2) + "\n",
+    );
     return;
   }
 
@@ -72,44 +76,8 @@ const server = http.createServer(async (request, response) => {
 
 server.listen(PORT, () => {
   console.log(`Serving weekly-planner on http://localhost:${PORT}`);
-  console.log(`SITE_NAME=${SITE_NAME}`);
+  console.log(`SITE_NAME=${siteConfig.siteName}`);
 });
-
-function normalizeSiteName(value) {
-  if (typeof value !== "string") {
-    return DEFAULT_SITE_NAME;
-  }
-
-  const trimmed = value.trim();
-  return trimmed || DEFAULT_SITE_NAME;
-}
-
-function buildManifest() {
-  return {
-    id: "/",
-    name: SITE_NAME,
-    short_name: SITE_NAME,
-    description: "Planner semanal familiar para actividades, traslados y organizacion diaria.",
-    start_url: "/",
-    scope: "/",
-    display: "standalone",
-    background_color: "#f8f3ea",
-    theme_color: "#b85c38",
-    lang: "es-AR",
-    icons: [
-      {
-        src: "/icons/icon-192.png",
-        sizes: "192x192",
-        type: "image/png",
-      },
-      {
-        src: "/icons/icon-512.png",
-        sizes: "512x512",
-        type: "image/png",
-      },
-    ],
-  };
-}
 
 function resolveBuildMetadata() {
   const commit = readGitOutput(["rev-parse", "--short", "HEAD"]);
