@@ -54,6 +54,18 @@
             <p class="section-kicker">Personas</p>
             <h2>Personas Principales</h2>
           </div>
+          <button
+            id="toggle-people"
+            type="button"
+            class="ghost compact section-toggle"
+            aria-expanded="true"
+            aria-controls="people-panel-body"
+          >
+            Ocultar
+          </button>
+        </div>
+
+        <div id="people-panel-body" class="panel-body">
           <div class="people-bar-actions">
             <button id="add-person" type="button" class="ghost compact">Agregar persona</button>
             <button id="save-json" type="button" class="ghost compact">Descargar JSON</button>
@@ -61,19 +73,7 @@
               Importar JSON
               <input id="json-upload" type="file" accept="application/json" />
             </label>
-            <button
-              id="toggle-people"
-              type="button"
-              class="ghost compact section-toggle"
-              aria-expanded="true"
-              aria-controls="people-panel-body"
-            >
-              Ocultar
-            </button>
           </div>
-        </div>
-
-        <div id="people-panel-body" class="panel-body">
           <div id="people-list" class="person-list person-strip"></div>
         </div>
       </section>

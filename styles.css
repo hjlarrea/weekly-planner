@@ -197,6 +197,7 @@ h3 {
   gap: 0.75rem;
   flex-wrap: wrap;
   align-items: center;
+  margin-bottom: 1rem;
 }
 
 .import-inline {
@@ -645,6 +646,11 @@ th {
 
   .planner-canvas {
     min-width: 0;
+  }
+
+  .planner-canvas svg {
+    width: 100%;
+    height: auto;
   }
 
   .field-row,
