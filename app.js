@@ -57,6 +57,11 @@ const mobileNextDayButton = document.querySelector("#mobile-next-day");
 const mobileOpenEditorButton = document.querySelector("#mobile-open-editor");
 const collapsibleButtons = Array.from(document.querySelectorAll(".section-toggle"));
 const mobileLayoutQuery = window.matchMedia("(max-width: 760px)");
+const menuToggleButton = document.querySelector("#menu-toggle");
+const siteMenu = document.querySelector("#site-menu");
+const menuOverlay = document.querySelector("#menu-overlay");
+const pageSections = Array.from(document.querySelectorAll(".app-page"));
+const pageNavButtons = Array.from(document.querySelectorAll("[data-page-target]"));
 
 let currentEditContext = null;
 let pendingPersonFocusId = null;
@@ -64,6 +69,7 @@ let plannerSelection = null;
 let plannerSelectionDraft = null;
 let plannerSelectionSession = null;
 let mobilePlannerDay = getCurrentWeekdayIndex();
+let currentPage = "planner";
 const panelState = {
   people: true,
   entries: true,
@@ -88,6 +94,11 @@ entryRepeat.addEventListener("change", syncRepeatControls);
 repeatDayInputs.forEach((input) => input.addEventListener("change", handleRepeatDayToggle));
 entryForm.addEventListener("submit", saveEntry);
 collapsibleButtons.forEach((button) => button.addEventListener("click", handlePanelToggle));
+pageNavButtons.forEach((button) => button.addEventListener("click", handlePageNavigation));
+menuToggleButton?.addEventListener("click", toggleSiteMenu);
+menuOverlay?.addEventListener("click", closeSiteMenu);
+document.addEventListener("click", handleDocumentClick);
+document.addEventListener("keydown", handleGlobalKeydown);
 mobilePrevDayButton?.addEventListener("click", () => shiftMobilePlannerDay(-1));
 mobileNextDayButton?.addEventListener("click", () => shiftMobilePlannerDay(1));
 mobileOpenEditorButton?.addEventListener("click", () => openEditorPanel(true));
@@ -197,6 +208,7 @@ function render() {
   renderLegend();
   renderMobileDayTabs();
   renderPlanner();
+  renderPageVisibility();
 }
 
 function renderPeople(container, people, key) {
@@ -1119,6 +1131,7 @@ function openEditorPanel(shouldScroll = false) {
 }
 
 function handleMobileLayoutChange() {
+  closeSiteMenu();
   syncResponsiveState();
   render();
 }
@@ -1134,6 +1147,92 @@ function syncResponsiveState() {
   setPanelExpanded("people", true);
   setPanelExpanded("entries", true);
   setPanelExpanded("editor", true);
+}
+
+function handlePageNavigation(event) {
+  const targetPage = event.currentTarget.dataset.pageTarget;
+  if (!targetPage) {
+    return;
+  }
+
+  currentPage = targetPage;
+  renderPageVisibility();
+  closeSiteMenu();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function renderPageVisibility() {
+  pageSections.forEach((section) => {
+    section.hidden = section.dataset.page !== currentPage;
+  });
+
+  pageNavButtons.forEach((button) => {
+    const isActive = button.dataset.pageTarget === currentPage;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-current", isActive ? "page" : "false");
+  });
+}
+
+function toggleSiteMenu() {
+  if (!siteMenu || !menuToggleButton) {
+    return;
+  }
+
+  if (siteMenu.hidden) {
+    openSiteMenu();
+    return;
+  }
+
+  closeSiteMenu();
+}
+
+function openSiteMenu() {
+  if (!siteMenu || !menuToggleButton) {
+    return;
+  }
+
+  siteMenu.hidden = false;
+  siteMenu.classList.add("is-open");
+  menuToggleButton.setAttribute("aria-expanded", "true");
+
+  if (mobileLayoutQuery.matches) {
+    menuOverlay.hidden = false;
+    document.body.classList.add("menu-open");
+  }
+}
+
+function closeSiteMenu() {
+  if (!siteMenu || !menuToggleButton) {
+    return;
+  }
+
+  siteMenu.hidden = true;
+  siteMenu.classList.remove("is-open");
+  menuToggleButton.setAttribute("aria-expanded", "false");
+  menuOverlay.hidden = true;
+  document.body.classList.remove("menu-open");
+}
+
+function handleDocumentClick(event) {
+  if (!siteMenu || siteMenu.hidden) {
+    return;
+  }
+
+  if (mobileLayoutQuery.matches) {
+    return;
+  }
+
+  if (event.target.closest(".menu-anchor")) {
+    return;
+  }
+
+  closeSiteMenu();
+}
+
+function handleGlobalKeydown(event) {
+  if (event.key === "Escape") {
+    closeSiteMenu();
+  }
 }
 
 function getCurrentWeekdayIndex() {
