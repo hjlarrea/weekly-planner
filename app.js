@@ -51,12 +51,24 @@ const jsonUpload = document.querySelector("#json-upload");
 const repeatDaysWrap = document.querySelector("#repeat-days-wrap");
 const repeatDayInputs = Array.from(document.querySelectorAll('input[name="repeat-day"]'));
 const addPersonButton = document.querySelector("#add-person");
+const mobileDayTabs = document.querySelector("#mobile-day-tabs");
+const mobilePrevDayButton = document.querySelector("#mobile-prev-day");
+const mobileNextDayButton = document.querySelector("#mobile-next-day");
+const mobileOpenEditorButton = document.querySelector("#mobile-open-editor");
+const collapsibleButtons = Array.from(document.querySelectorAll(".section-toggle"));
+const mobileLayoutQuery = window.matchMedia("(max-width: 760px)");
 
 let currentEditContext = null;
 let pendingPersonFocusId = null;
 let plannerSelection = null;
 let plannerSelectionDraft = null;
 let plannerSelectionSession = null;
+let mobilePlannerDay = getCurrentWeekdayIndex();
+const panelState = {
+  people: true,
+  entries: true,
+  editor: true,
+};
 
 if (addPersonButton) {
   addPersonButton.addEventListener("click", addPerson);
@@ -75,9 +87,15 @@ entryDay.addEventListener("change", syncRepeatDaySelectionFromDay);
 entryRepeat.addEventListener("change", syncRepeatControls);
 repeatDayInputs.forEach((input) => input.addEventListener("change", handleRepeatDayToggle));
 entryForm.addEventListener("submit", saveEntry);
+collapsibleButtons.forEach((button) => button.addEventListener("click", handlePanelToggle));
+mobilePrevDayButton?.addEventListener("click", () => shiftMobilePlannerDay(-1));
+mobileNextDayButton?.addEventListener("click", () => shiftMobilePlannerDay(1));
+mobileOpenEditorButton?.addEventListener("click", () => openEditorPanel(true));
+mobileLayoutQuery.addEventListener("change", handleMobileLayoutChange);
 
 render();
 initializeAppShell();
+syncResponsiveState();
 
 function loadState() {
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -177,6 +195,7 @@ function render() {
   syncEntryPersonSelect();
   renderEntriesTable();
   renderLegend();
+  renderMobileDayTabs();
   renderPlanner();
 }
 
@@ -361,7 +380,11 @@ function renderLegend() {
 function renderPlanner() {
   const occurrences = expandEntries(state.entries);
   plannerEmpty.hidden = occurrences.length > 0;
-  plannerCanvas.innerHTML = createPlannerSvg(occurrences, plannerSelectionDraft || plannerSelection);
+  plannerCanvas.innerHTML = createPlannerSvg(
+    occurrences,
+    plannerSelectionDraft || plannerSelection,
+    getPlannerDayIndexes()
+  );
   plannerCanvas.querySelectorAll(".planner-edit-title").forEach((element) => {
     element.addEventListener("click", () => {
       editEntryInstance(element.dataset.entryId, Number(element.dataset.day));
@@ -374,9 +397,12 @@ function renderPlanner() {
   }
 }
 
-function createPlannerSvg(occurrences, selection) {
+function createPlannerSvg(occurrences, selection, dayIndexes = DAYS.map((_, index) => index)) {
   const { dayWidth, labelWidth, headerHeight } = PLANNER_LAYOUT;
-  const svgWidth = labelWidth + DAYS.length * dayWidth;
+  const visibleDays = dayIndexes.length ? dayIndexes : DAYS.map((_, index) => index);
+  const dayOffsetMap = new Map(visibleDays.map((day, index) => [day, index]));
+  const filteredSelection = selection && dayOffsetMap.has(selection.day) ? selection : null;
+  const svgWidth = labelWidth + visibleDays.length * dayWidth;
   const svgHeight = headerHeight + HOURS.length * HOUR_HEIGHT;
 
   const hourLines = HOURS.map((hour, index) => {
@@ -387,25 +413,27 @@ function createPlannerSvg(occurrences, selection) {
     `;
   }).join("");
 
-  const dayColumns = DAYS.map((day, index) => {
+  const dayColumns = visibleDays.map((day, index) => {
     const x = labelWidth + index * dayWidth;
     return `
       <rect x="${x}" y="0" width="${dayWidth}" height="${svgHeight}" fill="${index % 2 ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.34)"}" />
       <line x1="${x}" y1="0" x2="${x}" y2="${svgHeight}" stroke="rgba(74,54,40,0.14)" />
-      <text x="${x + 18}" y="34" fill="#2f241c" font-size="18" font-family="Georgia, serif">${DAY_SHORT[index]}</text>
+      <text x="${x + 18}" y="34" fill="#2f241c" font-size="18" font-family="Georgia, serif">${DAY_SHORT[day]}</text>
     `;
   }).join("");
 
-  const selectionMarkup = selection ? createPlannerSelectionMarkup(selection, dayWidth, labelWidth, headerHeight) : "";
+  const selectionMarkup = filteredSelection
+    ? createPlannerSelectionMarkup(filteredSelection, dayWidth, labelWidth, headerHeight, dayOffsetMap)
+    : "";
 
-  const blocks = occurrences.map((occurrence) => {
+  const blocks = occurrences.filter((occurrence) => dayOffsetMap.has(occurrence.day)).map((occurrence) => {
     const { entry, day } = occurrence;
     const person = getPersonForEntry(entry);
     const startMinutes = toMinutes(entry.start);
     const endMinutes = toMinutes(entry.end);
     const top = headerHeight + ((startMinutes - 360) / 60) * HOUR_HEIGHT;
     const height = Math.max(((endMinutes - startMinutes) / 60) * HOUR_HEIGHT, 36);
-    const x = labelWidth + day * dayWidth + 10;
+    const x = labelWidth + dayOffsetMap.get(day) * dayWidth + 10;
     const width = dayWidth - 20;
     const fill = person?.color || "#94a3b8";
     const stripe = entry.type === "transport" ? "#243b53" : "#8c3d20";
@@ -458,12 +486,12 @@ function createPlannerSvg(occurrences, selection) {
   `;
 }
 
-function createPlannerSelectionMarkup(selection, dayWidth, labelWidth, headerHeight) {
+function createPlannerSelectionMarkup(selection, dayWidth, labelWidth, headerHeight, dayOffsetMap) {
   const startMinutes = toMinutes(selection.start);
   const endMinutes = toMinutes(selection.end);
   const top = headerHeight + ((startMinutes - PLANNER_START_MINUTES) / 60) * HOUR_HEIGHT;
   const height = Math.max(((endMinutes - startMinutes) / 60) * HOUR_HEIGHT, 18);
-  const x = labelWidth + selection.day * dayWidth + 8;
+  const x = labelWidth + dayOffsetMap.get(selection.day) * dayWidth + 8;
   const width = dayWidth - 16;
   const label = escapeHtml(`${DAY_SHORT[selection.day]} ${selection.start} - ${selection.end}`);
   const labelY = Math.max(top + 22, headerHeight + 22);
@@ -521,6 +549,7 @@ function editEntry(entryId) {
   document.querySelector("#entry-start").value = entry.start;
   document.querySelector("#entry-end").value = entry.end;
   document.querySelector("#entry-notes").value = entry.notes || "";
+  openEditorPanel(true);
   document.querySelector("#entry-title").focus();
 }
 
@@ -552,6 +581,7 @@ function editEntryInstance(entryId, day) {
   document.querySelector("#entry-start").value = entry.start;
   document.querySelector("#entry-end").value = entry.end;
   document.querySelector("#entry-notes").value = entry.notes || "";
+  openEditorPanel(true);
   document.querySelector("#entry-title").focus();
 }
 
@@ -568,6 +598,9 @@ function resetForm() {
   syncEntryPersonSelect();
   syncRepeatControls();
   renderPlanner();
+  if (mobileLayoutQuery.matches) {
+    setPanelExpanded("editor", false);
+  }
 }
 
 function getPersonForEntry(entry) {
@@ -955,6 +988,7 @@ function getPlannerSlotFromPointer(event, plannerSvg, lockedDay = null) {
   }
 
   const { dayWidth, labelWidth, headerHeight } = PLANNER_LAYOUT;
+  const visibleDayIndexes = getPlannerDayIndexes();
   const bounds = plannerSvg.getBoundingClientRect();
   const scaleX = plannerSvg.viewBox.baseVal.width / bounds.width;
   const scaleY = plannerSvg.viewBox.baseVal.height / bounds.height;
@@ -970,7 +1004,8 @@ function getPlannerSlotFromPointer(event, plannerSvg, lockedDay = null) {
     return null;
   }
 
-  const day = lockedDay ?? Math.min(Math.floor((x - labelWidth) / dayWidth), DAYS.length - 1);
+  const dayOffset = Math.max(0, Math.min(Math.floor((x - labelWidth) / dayWidth), visibleDayIndexes.length - 1));
+  const day = lockedDay ?? visibleDayIndexes[dayOffset];
   const rawMinutes = PLANNER_START_MINUTES + ((y - headerHeight) / HOUR_HEIGHT) * 60;
   const minutes = snapPlannerMinutes(rawMinutes);
   return buildPlannerSelection(day, minutes, minutes);
@@ -1013,13 +1048,97 @@ function applyPlannerSelectionToForm(selection) {
   }
 
   plannerSelection = selection;
+  mobilePlannerDay = selection.day;
   entryDay.value = String(selection.day);
   document.querySelector("#entry-start").value = selection.start;
   document.querySelector("#entry-end").value = selection.end;
   setRepeatDaySelection([selection.day]);
   setEditContextBanner(`Nuevo bloque seleccionado: ${DAYS[selection.day]}, ${selection.start} a ${selection.end}. Completá los datos y guardá.`);
+  setPanelExpanded("editor", true);
   renderPlanner();
   document.querySelector("#entry-title").focus();
+  if (mobileLayoutQuery.matches) {
+    document.querySelector(".editor-panel")?.scrollIntoView({ block: "start", behavior: "smooth" });
+  }
+}
+
+function renderMobileDayTabs() {
+  if (!mobileDayTabs) {
+    return;
+  }
+
+  mobileDayTabs.innerHTML = "";
+  DAYS.forEach((day, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `ghost compact day-tab${index === mobilePlannerDay ? " is-active" : ""}`;
+    button.textContent = day;
+    button.setAttribute("aria-pressed", String(index === mobilePlannerDay));
+    button.addEventListener("click", () => {
+      mobilePlannerDay = index;
+      render();
+    });
+    mobileDayTabs.appendChild(button);
+  });
+}
+
+function getPlannerDayIndexes() {
+  return mobileLayoutQuery.matches ? [mobilePlannerDay] : DAYS.map((_, index) => index);
+}
+
+function shiftMobilePlannerDay(step) {
+  mobilePlannerDay = (mobilePlannerDay + step + DAYS.length) % DAYS.length;
+  render();
+}
+
+function handlePanelToggle(event) {
+  const panelKey = event.currentTarget.id.replace("toggle-", "");
+  setPanelExpanded(panelKey, !panelState[panelKey]);
+}
+
+function setPanelExpanded(panelKey, expanded) {
+  panelState[panelKey] = expanded;
+  const button = document.querySelector(`#toggle-${panelKey}`);
+  const body = document.querySelector(`#${panelKey}-panel-body`);
+
+  if (button) {
+    button.textContent = expanded ? "Ocultar" : "Mostrar";
+    button.setAttribute("aria-expanded", String(expanded));
+  }
+
+  if (body) {
+    body.hidden = !expanded;
+  }
+}
+
+function openEditorPanel(shouldScroll = false) {
+  setPanelExpanded("editor", true);
+  if (shouldScroll && mobileLayoutQuery.matches) {
+    document.querySelector(".editor-panel")?.scrollIntoView({ block: "start", behavior: "smooth" });
+  }
+}
+
+function handleMobileLayoutChange() {
+  syncResponsiveState();
+  render();
+}
+
+function syncResponsiveState() {
+  if (mobileLayoutQuery.matches) {
+    setPanelExpanded("people", false);
+    setPanelExpanded("entries", false);
+    setPanelExpanded("editor", false);
+    return;
+  }
+
+  setPanelExpanded("people", true);
+  setPanelExpanded("entries", true);
+  setPanelExpanded("editor", true);
+}
+
+function getCurrentWeekdayIndex() {
+  const today = new Date().getDay();
+  return today === 0 ? 6 : today - 1;
 }
 
 function clearPlannerSelection() {
