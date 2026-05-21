@@ -34,6 +34,7 @@ Initial configuration keys:
 - `SITE_DESCRIPTION`: meta description and manifest description.
 - `SITE_OG_IMAGE`: absolute URL of the social sharing image.
 - `SITE_ROBOTS`: robots policy for generated metadata.
+- `SITE_MENU_ENABLED`: enables hosted-only navigation such as About and future content pages.
 
 These values should be normalized into a single site-config object inside the
 build pipeline. Generic defaults remain in the repository. The hosted deployment provides

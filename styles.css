@@ -193,6 +193,10 @@ label {
   display: none;
 }
 
+.page-shell.menu-disabled .shell-topbar {
+  display: none;
+}
+
 .hero {
   display: flex;
   justify-content: space-between;
@@ -586,36 +590,30 @@ h3 {
 
 .about-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
-  gap: 1.4rem;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
+  gap: 1.6rem;
   align-items: start;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .about-lead {
   color: var(--muted);
-  line-height: 1.65;
+  line-height: 1.72;
   font-size: 1rem;
 }
 
-.about-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+.about-copy {
+  max-width: 76ch;
 }
 
-.about-card {
-  padding: 1.1rem 1.15rem;
-  border-radius: 20px;
-  border: 1px solid rgba(90, 63, 41, 0.1);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(246, 238, 228, 0.9)),
-    linear-gradient(135deg, rgba(184, 92, 56, 0.06), transparent 55%);
+.about-copy h3 {
+  margin-top: 1.5rem;
 }
 
-.about-card p {
+.about-copy p {
   color: var(--muted);
-  line-height: 1.6;
+  line-height: 1.72;
+  margin: 0.8rem 0 0;
 }
 
 .site-footer a {
@@ -689,7 +687,6 @@ th {
   }
 
   .about-hero,
-  .about-grid,
   .hero,
   .planner-meta,
   .panel-header,

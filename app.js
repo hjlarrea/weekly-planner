@@ -57,6 +57,8 @@ const mobileNextDayButton = document.querySelector("#mobile-next-day");
 const mobileOpenEditorButton = document.querySelector("#mobile-open-editor");
 const collapsibleButtons = Array.from(document.querySelectorAll(".section-toggle"));
 const mobileLayoutQuery = window.matchMedia("(max-width: 760px)");
+const pageShell = document.querySelector(".page-shell");
+const shellTopbar = document.querySelector("#shell-topbar");
 const menuToggleButton = document.querySelector("#menu-toggle");
 const siteMenu = document.querySelector("#site-menu");
 const menuOverlay = document.querySelector("#menu-overlay");
@@ -69,6 +71,7 @@ let plannerSelection = null;
 let plannerSelectionDraft = null;
 let plannerSelectionSession = null;
 let mobilePlannerDay = getCurrentWeekdayIndex();
+let siteMenuEnabled = false;
 let currentPage = "planner";
 const panelState = {
   people: true,
@@ -133,6 +136,7 @@ function persistAndRender() {
 
 function initializeAppShell() {
   applySiteBranding();
+  applySiteMode();
   applyBuildMetadata();
   registerServiceWorker();
 }
@@ -170,6 +174,18 @@ function applySiteBranding() {
   if (siteNameHeading) {
     siteNameHeading.textContent = siteName;
   }
+}
+
+function applySiteMode() {
+  siteMenuEnabled = Boolean(window.APP_CONFIG?.siteMenuEnabled);
+
+  if (!siteMenuEnabled) {
+    currentPage = "planner";
+    closeSiteMenu();
+  }
+
+  pageShell?.classList.toggle("menu-disabled", !siteMenuEnabled);
+  shellTopbar?.toggleAttribute("hidden", !siteMenuEnabled);
 }
 
 function applyBuildMetadata() {
@@ -1150,6 +1166,10 @@ function syncResponsiveState() {
 }
 
 function handlePageNavigation(event) {
+  if (!siteMenuEnabled) {
+    return;
+  }
+
   const targetPage = event.currentTarget.dataset.pageTarget;
   if (!targetPage) {
     return;
@@ -1163,7 +1183,9 @@ function handlePageNavigation(event) {
 
 function renderPageVisibility() {
   pageSections.forEach((section) => {
-    section.hidden = section.dataset.page !== currentPage;
+    const isAboutPage = section.dataset.page === "about";
+    const isVisiblePage = section.dataset.page === currentPage;
+    section.hidden = isAboutPage ? !siteMenuEnabled || !isVisiblePage : !isVisiblePage;
   });
 
   pageNavButtons.forEach((button) => {
@@ -1174,7 +1196,7 @@ function renderPageVisibility() {
 }
 
 function toggleSiteMenu() {
-  if (!siteMenu || !menuToggleButton) {
+  if (!siteMenuEnabled || !siteMenu || !menuToggleButton) {
     return;
   }
 
@@ -1187,7 +1209,7 @@ function toggleSiteMenu() {
 }
 
 function openSiteMenu() {
-  if (!siteMenu || !menuToggleButton) {
+  if (!siteMenuEnabled || !siteMenu || !menuToggleButton) {
     return;
   }
 
@@ -1214,7 +1236,7 @@ function closeSiteMenu() {
 }
 
 function handleDocumentClick(event) {
-  if (!siteMenu || siteMenu.hidden) {
+  if (!siteMenuEnabled || !siteMenu || siteMenu.hidden) {
     return;
   }
 

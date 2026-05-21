@@ -5,6 +5,7 @@ const DEFAULTS = {
   siteUrl: "",
   siteOgImage: "",
   siteRobots: "index,follow",
+  siteMenuEnabled: false,
   locale: "es_AR",
   lang: "es-AR",
   themeColor: "#b85c38",
@@ -18,6 +19,7 @@ export function resolveSiteConfig(env = process.env) {
   const siteUrl = normalizeUrl(env.SITE_URL);
   const siteOgImage = normalizeUrl(env.SITE_OG_IMAGE);
   const siteRobots = normalizeString(env.SITE_ROBOTS, DEFAULTS.siteRobots);
+  const siteMenuEnabled = normalizeBoolean(env.SITE_MENU_ENABLED, DEFAULTS.siteMenuEnabled);
 
   return {
     siteName,
@@ -26,6 +28,7 @@ export function resolveSiteConfig(env = process.env) {
     siteUrl,
     siteOgImage,
     siteRobots,
+    siteMenuEnabled,
     locale: DEFAULTS.locale,
     lang: DEFAULTS.lang,
     themeColor: DEFAULTS.themeColor,
@@ -68,6 +71,7 @@ export function buildRuntimeConfig(siteConfig) {
     siteUrl: siteConfig.siteUrl,
     siteOgImage: siteConfig.siteOgImage,
     siteRobots: siteConfig.siteRobots,
+    siteMenuEnabled: siteConfig.siteMenuEnabled,
   };
 }
 
@@ -206,6 +210,27 @@ function normalizeUrl(value) {
   } catch {
     return "";
   }
+}
+
+function normalizeBoolean(value, fallback) {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value !== "string") {
+    return fallback;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(normalized)) {
+    return true;
+  }
+
+  if (["0", "false", "no", "off"].includes(normalized)) {
+    return false;
+  }
+
+  return fallback;
 }
 
 function escapeAttribute(value) {

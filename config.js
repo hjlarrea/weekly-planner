@@ -5,4 +5,5 @@ window.APP_CONFIG = {
   siteUrl: "",
   siteOgImage: "",
   siteRobots: "index,follow",
+  siteMenuEnabled: false,
 };

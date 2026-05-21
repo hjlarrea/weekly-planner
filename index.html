@@ -16,7 +16,7 @@
   <body>
     <div id="menu-overlay" class="menu-overlay" hidden></div>
     <div class="page-shell">
-      <div class="shell-topbar">
+      <div id="shell-topbar" class="shell-topbar">
         <div class="menu-anchor">
           <button
             id="menu-toggle"
@@ -324,36 +324,73 @@
           <p class="about-lead">
             Armá tu Semana es una aplicación web liviana para organizar actividades,
             traslados y rutinas familiares en una sola vista semanal, sin cuentas,
-            sin fricción y sin depender de un backend.
+            sin fricción y sin depender de un backend. La idea es simple: abrirla,
+            ordenar la semana y seguir con el día, sin tener que aprender una
+            herramienta nueva ni acomodarse a un sistema complejo.
           </p>
         </div>
 
-        <div class="about-grid">
-          <article class="about-card">
-            <h3>Qué resuelve</h3>
-            <p>
-              Permite ordenar la semana con bloques simples, diferenciados por
-              persona y tipo de actividad, para que sea fácil ver quién hace qué,
-              cuándo y dónde.
-            </p>
-          </article>
+        <div class="about-copy">
+          <h3>Qué resuelve</h3>
+          <p>
+            La organización familiar suele romperse en detalles chicos: quién lleva
+            a cada persona, a qué hora empieza una actividad, qué días se repite,
+            qué traslado hay que coordinar y qué cosas no se pueden superponer.
+            Armá tu Semana busca volver visible esa logística en un formato claro,
+            semanal y rápido de leer. En lugar de esconder la información en una
+            lista larga o en varias pantallas, la concentra en una única vista para
+            que sea más fácil tomar decisiones cotidianas.
+          </p>
+          <p>
+            El foco está en una necesidad muy concreta: ver la semana entera y
+            entenderla de un vistazo. Por eso cada bloque se puede asociar a una
+            persona principal, diferenciar por color y clasificar como actividad o
+            traslado. Ese contexto visual ayuda a detectar cruces, tiempos muertos,
+            huecos disponibles y puntos de fricción antes de que se conviertan en
+            problemas.
+          </p>
 
-          <article class="about-card">
-            <h3>Cómo funciona</h3>
-            <p>
-              Todo vive en el navegador. Podés cargar personas, sumar bloques,
-              repetir eventos, exportar la vista semanal y guardar o importar la
-              información en JSON cuando necesites moverla.
-            </p>
-          </article>
+          <h3>Cómo funciona</h3>
+          <p>
+            La aplicación corre completamente en el navegador. No hace falta crear
+            una cuenta, no depende de un backend para usarla y guarda los datos de
+            manera local para que la experiencia sea inmediata. Podés cargar
+            personas, crear bloques, repetir eventos en varios días de la semana,
+            editar ocurrencias específicas y exportar la planificación cuando
+            necesites compartirla o imprimirla.
+          </p>
+          <p>
+            También permite importar y exportar la información en formato JSON, lo
+            que simplifica respaldos, pruebas y movimientos entre dispositivos. La
+            idea no es competir con una suite de productividad generalista, sino
+            resolver bien una tarea puntual con una herramienta simple, directa y
+            suficientemente flexible para el uso real.
+          </p>
 
-          <article class="about-card">
-            <h3>Quién lo hizo</h3>
-            <p>
-              El producto fue construido por Hernan J. Larrea para ColoLabs, con
-              foco en una experiencia directa, rápida y fácil de autoalojar.
-            </p>
-          </article>
+          <h3>Por qué existe</h3>
+          <p>
+            Este producto nace de una observación práctica: muchas herramientas de
+            calendario son potentes, pero no siempre son cómodas para visualizar la
+            logística semanal de una familia o de un grupo pequeño. Entre cuentas,
+            vistas sobrecargadas, permisos y configuraciones, a veces el costo de
+            organizar termina siendo demasiado alto para algo que debería ser
+            rápido.
+          </p>
+          <p>
+            Armá tu Semana propone el camino opuesto. Menos fricción, menos pasos y
+            una interfaz orientada a ordenar la realidad cotidiana: actividades,
+            horarios, movimientos y responsabilidades. La prioridad no es sumar
+            funciones por sumar, sino conservar claridad y velocidad de uso.
+          </p>
+
+          <h3>Quién lo hizo</h3>
+          <p>
+            El producto fue construido por Hernán J. Larrea para ColoLabs, con una
+            mirada local-first y un enfoque claro en la facilidad de uso. La versión
+            pública busca ofrecer una experiencia lista para usar, mientras que la
+            versión self-hosted mantiene un perfil más neutro para quienes quieran
+            desplegarla por su cuenta y adaptarla a sus propias necesidades.
+          </p>
         </div>
       </section>
 

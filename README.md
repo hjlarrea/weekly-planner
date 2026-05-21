@@ -35,6 +35,7 @@ To override the local runtime branding, set one or more site configuration varia
 SITE_NAME="Mi Planner" \
 SITE_TITLE="Mi Planner | Organizador semanal" \
 SITE_DESCRIPTION="Organiza la semana en una sola vista." \
+SITE_MENU_ENABLED="true" \
 npm start
 ```
 
@@ -57,6 +58,7 @@ SITE_DESCRIPTION="Organiza actividades, traslados y rutinas familiares en una vi
 SITE_URL="https://armatusemana.com.ar/" \
 SITE_OG_IMAGE="https://armatusemana.com.ar/img/og-image.png" \
 SITE_ROBOTS="index,follow" \
+SITE_MENU_ENABLED="true" \
 npm run build
 ```
 
@@ -93,6 +95,7 @@ To override the runtime branding in Docker:
 SITE_NAME="Mi Planner" \
 SITE_TITLE="Mi Planner | Organizador semanal" \
 SITE_DESCRIPTION="Organiza la semana en una sola vista." \
+SITE_MENU_ENABLED="true" \
 docker compose up --build
 ```
 
@@ -137,5 +140,6 @@ preserve the license text and applicable attribution notices.
 - `SITE_URL` is the canonical public URL used for hosted metadata generation.
 - `SITE_OG_IMAGE` is the absolute public URL of the Open Graph image used for hosted sharing metadata.
 - `SITE_ROBOTS` controls the hosted robots meta policy, for example `index,follow` or `noindex,nofollow`.
+- `SITE_MENU_ENABLED` controls whether the hosted navigation menu and About page are available.
 - Hosted builds inject SEO metadata into `dist/index.html` and can also generate `robots.txt` and `sitemap.xml`.
 - The self-hosted Docker path stays generic unless you explicitly override it with environment variables.

@@ -36,6 +36,7 @@ jobs:
           SITE_URL="${{ vars.SITE_URL }}" \
           SITE_OG_IMAGE="${{ vars.SITE_OG_IMAGE }}" \
           SITE_ROBOTS="${{ vars.SITE_ROBOTS }}" \
+          SITE_MENU_ENABLED="${{ vars.SITE_MENU_ENABLED }}" \
           npm run build
       - name: Deploy the site
         run: |
