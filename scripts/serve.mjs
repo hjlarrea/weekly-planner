@@ -4,7 +4,13 @@ import { execFileSync } from "node:child_process";
 import http from "node:http";
 import { dirname, extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildManifest, buildRuntimeConfig, resolveSiteConfig } from "./site-config.mjs";
+import { buildManifest, buildRobotsTxt, buildRuntimeConfig, buildSitemapXml, resolveSiteConfig } from "./site-config.mjs";
+import {
+  buildArticleDetailPage,
+  buildArticleLandingPage,
+  findHostedArticleByPathname,
+  getHostedArticleRoutes,
+} from "./articles.mjs";
 
 const PORT = Number(process.env.PORT || 4173);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -40,6 +46,30 @@ const server = http.createServer(async (request, response) => {
       JSON.stringify(buildManifest(siteConfig), null, 2) + "\n",
     );
     return;
+  }
+
+  if (pathname === "/robots.txt") {
+    sendText(response, "text/plain; charset=utf-8", buildRobotsTxt(siteConfig));
+    return;
+  }
+
+  if (pathname === "/sitemap.xml") {
+    const sitemapPaths = siteConfig.siteMenuEnabled ? ["/", "/articulos/", ...getHostedArticleRoutes()] : ["/"];
+    sendText(response, "application/xml; charset=utf-8", buildSitemapXml(siteConfig, sitemapPaths));
+    return;
+  }
+
+  if (siteConfig.siteMenuEnabled && pathname === "/articulos/") {
+    sendText(response, "text/html; charset=utf-8", buildArticleLandingPage(siteConfig));
+    return;
+  }
+
+  if (siteConfig.siteMenuEnabled) {
+    const matchedArticle = findHostedArticleByPathname(pathname);
+    if (matchedArticle) {
+      sendText(response, "text/html; charset=utf-8", buildArticleDetailPage(matchedArticle, siteConfig));
+      return;
+    }
   }
 
   if (pathname === "/build-meta.js") {

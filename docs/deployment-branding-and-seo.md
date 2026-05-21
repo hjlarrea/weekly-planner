@@ -64,6 +64,7 @@ may contain branded and SEO-specific content, including:
 - `dist/manifest.json`
 - `dist/robots.txt`
 - `dist/sitemap.xml`
+- `dist/articulos/...` hosted-only article pages
 
 The generated `dist/index.html` should contain static SEO metadata directly in
 the HTML response. This includes, at minimum:
@@ -86,6 +87,8 @@ The Docker image continues to serve the generic source files.
 - Runtime overrides such as `SITE_NAME` may still be supported.
 - Public-site SEO values should not be included unless a self-hoster explicitly
   opts in by setting their own environment values in the future.
+- Hosted-only content pages and their navigation should not be shipped through
+  the generic Docker runtime.
 
 ## Consumption Split
 

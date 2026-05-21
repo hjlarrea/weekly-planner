@@ -91,18 +91,24 @@ export function buildRobotsTxt(siteConfig) {
   return lines.join("\n") + "\n";
 }
 
-export function buildSitemapXml(siteConfig) {
+export function buildSitemapXml(siteConfig, paths = ["/"]) {
   if (!siteConfig.siteUrl) {
     return "";
   }
 
-  const pageUrl = new URL("/", siteConfig.siteUrl).toString();
+  const entries = paths.map((path) => {
+    const pageUrl = new URL(path, siteConfig.siteUrl).toString();
+    return [
+      "  <url>",
+      `    <loc>${escapeXml(pageUrl)}</loc>`,
+      "  </url>",
+    ].join("\n");
+  });
+
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    "  <url>",
-    `    <loc>${escapeXml(pageUrl)}</loc>`,
-    "  </url>",
+    ...entries,
     "</urlset>",
     "",
   ].join("\n");

@@ -10,6 +10,12 @@ import {
   buildSitemapXml,
   resolveSiteConfig,
 } from "./site-config.mjs";
+import {
+  ARTICLE_PAGES,
+  buildArticleDetailPage,
+  buildArticleLandingPage,
+  getHostedArticleRoutes,
+} from "./articles.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
@@ -61,7 +67,20 @@ writeFileSync(
 writeFileSync(join(outDir, "index.html"), buildIndexHtml(sourceIndexHtml, siteConfig));
 writeFileSync(join(outDir, "robots.txt"), buildRobotsTxt(siteConfig));
 
-const sitemapXml = buildSitemapXml(siteConfig);
+if (siteConfig.siteMenuEnabled) {
+  const articlesDir = join(outDir, "articulos");
+  mkdirSync(articlesDir, { recursive: true });
+  writeFileSync(join(articlesDir, "index.html"), buildArticleLandingPage(siteConfig));
+
+  for (const article of ARTICLE_PAGES) {
+    const articleDir = join(articlesDir, article.slug);
+    mkdirSync(articleDir, { recursive: true });
+    writeFileSync(join(articleDir, "index.html"), buildArticleDetailPage(article, siteConfig));
+  }
+}
+
+const sitemapPaths = siteConfig.siteMenuEnabled ? ["/", "/articulos/", ...getHostedArticleRoutes()] : ["/"];
+const sitemapXml = buildSitemapXml(siteConfig, sitemapPaths);
 if (sitemapXml) {
   writeFileSync(join(outDir, "sitemap.xml"), sitemapXml);
 }
