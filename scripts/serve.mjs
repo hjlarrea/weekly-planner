@@ -2,7 +2,7 @@ import { createReadStream, existsSync } from "node:fs";
 import { stat } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import http from "node:http";
-import { dirname, extname, join, normalize } from "node:path";
+import { dirname, extname, isAbsolute, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildManifest, buildRobotsTxt, buildRuntimeConfig, buildSitemapXml, resolveSiteConfig } from "./site-config.mjs";
 import {
@@ -15,7 +15,9 @@ import {
 const PORT = Number(process.env.PORT || 4173);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
+const serveDir = resolveServeDir(process.argv[2]);
 const siteConfig = resolveSiteConfig(process.env);
+const servesGeneratedOutput = serveDir !== rootDir;
 
 const CONTENT_TYPES = {
   ".css": "text/css; charset=utf-8",
@@ -30,7 +32,7 @@ const server = http.createServer(async (request, response) => {
   const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
   const pathname = url.pathname;
 
-  if (pathname === "/config.js") {
+  if (!servesGeneratedOutput && pathname === "/config.js") {
     sendText(
       response,
       "application/javascript; charset=utf-8",
@@ -39,7 +41,7 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
-  if (pathname === "/manifest.json") {
+  if (!servesGeneratedOutput && pathname === "/manifest.json") {
     sendText(
       response,
       "application/json; charset=utf-8",
@@ -48,23 +50,23 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
-  if (pathname === "/robots.txt") {
+  if (!servesGeneratedOutput && pathname === "/robots.txt") {
     sendText(response, "text/plain; charset=utf-8", buildRobotsTxt(siteConfig));
     return;
   }
 
-  if (pathname === "/sitemap.xml") {
+  if (!servesGeneratedOutput && pathname === "/sitemap.xml") {
     const sitemapPaths = siteConfig.siteMenuEnabled ? ["/", "/articulos/", ...getHostedArticleRoutes()] : ["/"];
     sendText(response, "application/xml; charset=utf-8", buildSitemapXml(siteConfig, sitemapPaths));
     return;
   }
 
-  if (siteConfig.siteMenuEnabled && pathname === "/articulos/") {
+  if (!servesGeneratedOutput && siteConfig.siteMenuEnabled && pathname === "/articulos/") {
     sendText(response, "text/html; charset=utf-8", buildArticleLandingPage(siteConfig));
     return;
   }
 
-  if (siteConfig.siteMenuEnabled) {
+  if (!servesGeneratedOutput && siteConfig.siteMenuEnabled) {
     const matchedArticle = findHostedArticleByPathname(pathname);
     if (matchedArticle) {
       sendText(response, "text/html; charset=utf-8", buildArticleDetailPage(matchedArticle, siteConfig));
@@ -72,7 +74,7 @@ const server = http.createServer(async (request, response) => {
     }
   }
 
-  if (pathname === "/build-meta.js") {
+  if (!servesGeneratedOutput && pathname === "/build-meta.js") {
     sendText(
       response,
       "application/javascript; charset=utf-8",
@@ -106,6 +108,7 @@ const server = http.createServer(async (request, response) => {
 
 server.listen(PORT, () => {
   console.log(`Serving weekly-planner on http://localhost:${PORT}`);
+  console.log(`SERVE_DIR=${serveDir}`);
   console.log(`SITE_NAME=${siteConfig.siteName}`);
 });
 
@@ -133,9 +136,26 @@ function readGitOutput(args) {
 function resolveStaticPath(pathname) {
   const requestedPath = pathname === "/" ? "/index.html" : pathname;
   const normalizedPath = normalize(requestedPath).replace(/^(\.\.[/\\])+/, "");
-  const filePath = join(rootDir, normalizedPath);
+  const directPath = join(serveDir, normalizedPath);
 
-  return existsSync(filePath) ? filePath : null;
+  if (existsSync(directPath)) {
+    return directPath;
+  }
+
+  const indexPath = join(serveDir, normalizedPath, "index.html");
+  if (existsSync(indexPath)) {
+    return indexPath;
+  }
+
+  return null;
+}
+
+function resolveServeDir(inputPath) {
+  if (!inputPath) {
+    return rootDir;
+  }
+
+  return isAbsolute(inputPath) ? inputPath : join(rootDir, inputPath);
 }
 
 function sendText(response, contentType, body) {
