@@ -3,6 +3,7 @@ services:
     build: .
     environment:
       SITE_NAME: ${SITE_NAME:-Planner Semanal (Compose)}
+      SITE_MENU_ENABLED: true
     ports:
       - "4173:80"
     restart: unless-stopped
