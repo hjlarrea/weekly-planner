@@ -6,6 +6,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "build": "node ./scripts/build.mjs",
-    "start": "npm run build && node ./scripts/serve.mjs dist"
+    "start": "npm run build && node ./scripts/serve.mjs dist",
+    "start:src": "node ./scripts/serve.mjs"
   }
 }

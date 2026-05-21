@@ -21,7 +21,7 @@ This project is a simple weekly planner designed to get out of your way and let 
 
 ## Run - NPM
 
-For development purposes, you can run the following command after introducing your changes:
+For a hosted-like local preview from the generated `dist/` artifact, run:
 
 ```bash
 npm start
@@ -29,7 +29,15 @@ npm start
 
 Then open `http://localhost:4173`.
 
-To override the local runtime branding, set one or more site configuration variables before starting the server:
+To serve directly from the source tree without building first, run:
+
+```bash
+npm run start:src
+```
+
+Use `start:src` when you want a faster source-based preview for testing.
+
+To override the local runtime branding, set one or more site configuration variables before starting either server:
 
 ```bash
 SITE_NAME="Mi Planner" \
@@ -130,7 +138,8 @@ preserve the license text and applicable attribution notices.
 
 - No backend is required.
 - Data stays in the browser unless you export/import JSON.
-- `npm start` serves the source files directly for a simple local preview.
+- `npm start` builds `dist/` and serves the generated output for a hosted-like preview.
+- `npm run start:src` serves the source files directly for a faster source-based preview.
 - `npm run build` prepares a static `dist/` directory for deployment or external hosting.
 - The project supports one shared site-configuration model across local runtime, hosted builds, and Docker overrides.
 - `SITE_NAME` is the app or brand name shown in the UI.
