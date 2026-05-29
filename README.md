@@ -37,6 +37,27 @@ npm run start:src
 
 Use `start:src` when you want a faster source-based preview for testing.
 
+## Tests
+
+Run the full local merge gate with:
+
+```bash
+npm run test
+```
+
+That command covers:
+
+- unit tests for pure planner and site-configuration logic
+- integration tests for hosted build output plus source/dist serving behavior
+- browser-driven synthetic tests for `start:src`, `dist`, and Docker variants
+
+The browser suite uses Playwright with the local Chrome executable at
+`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` by default.
+Override it with `PLAYWRIGHT_CHROME_EXECUTABLE_PATH` if needed.
+
+For the Docker variant inside `npm run test`, the local Docker daemon must be
+running.
+
 To override the local runtime branding, set one or more site configuration variables before starting either server:
 
 ```bash

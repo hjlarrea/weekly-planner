@@ -26,6 +26,7 @@ const entriesToCopy = [
   "index.html",
   "styles.css",
   "app.js",
+  "planner-core.mjs",
   "config.js",
   "sw.js",
   "icons",

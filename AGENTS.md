@@ -13,12 +13,17 @@ After every completed change set:
 
 1. Run:
    ```bash
+   npm run test
+   ```
+2. Confirm the full local test suite passes. Do not merge to `main` if any test failed.
+3. Run:
+   ```bash
    docker compose down
    docker compose up -d --build
    ```
-2. Confirm the container starts successfully.
-3. Commit the validated changes to git.
-4. Run:
+4. Confirm the container starts successfully.
+5. Commit the validated changes to git.
+6. Run:
    ```bash
    /Applications/Firefox.app/Contents/MacOS/firefox --private-window http://127.0.0.1:4173
    ```

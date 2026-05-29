@@ -1,25 +1,26 @@
+import {
+  DAYS,
+  DAY_SHORT,
+  HOURS,
+  PLANNER_END_MINUTES,
+  PLANNER_START_MINUTES,
+  PLANNER_STEP_MINUTES,
+  buildPlannerSelection,
+  expandEntries,
+  minutesToTime,
+  normalizeRepeatDays,
+  snapPlannerMinutes,
+  toMinutes,
+} from "./planner-core.mjs";
+
 const STORAGE_KEY = "weekly-planner-state-v1";
 const DEFAULT_SITE_NAME = "Planner Semanal";
-const DAYS = [
-  "Lunes",
-  "Martes",
-  "Miércoles",
-  "Jueves",
-  "Viernes",
-  "Sábado",
-  "Domingo",
-];
-const DAY_SHORT = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
-const HOURS = Array.from({ length: 17 }, (_, index) => 6 + index);
 const HOUR_HEIGHT = 72;
 const PLANNER_LAYOUT = {
   dayWidth: 180,
   labelWidth: 88,
   headerHeight: 60,
 };
-const PLANNER_STEP_MINUTES = 15;
-const PLANNER_START_MINUTES = HOURS[0] * 60;
-const PLANNER_END_MINUTES = (HOURS[HOURS.length - 1] + 1) * 60;
 const DEFAULT_STATE = {
   people: [
     { id: crypto.randomUUID(), name: "Persona 1", color: "#e76f51" },
@@ -639,11 +640,6 @@ function sortEntries(a, b) {
   return a.day - b.day || a.start.localeCompare(b.start) || a.end.localeCompare(b.end);
 }
 
-function toMinutes(value) {
-  const [hours, minutes] = value.split(":").map(Number);
-  return hours * 60 + minutes;
-}
-
 function formatHour(hour) {
   return `${String(hour).padStart(2, "0")}:00`;
 }
@@ -885,21 +881,6 @@ function normalizeEntry(entry) {
   };
 }
 
-function normalizeRepeatDays(entry) {
-  const rawDays = Array.isArray(entry.repeatDays) ? entry.repeatDays : [entry.day];
-  const days = [...new Set(rawDays.map(Number).filter((day) => Number.isInteger(day) && day >= 0 && day <= 6))];
-  return days.length ? days.sort((a, b) => a - b) : [entry.day];
-}
-
-function expandEntries(entries) {
-  return entries
-    .flatMap((entry) => {
-      const days = entry.repeatMode === "weekly" ? normalizeRepeatDays(entry) : [entry.day];
-      return days.map((day) => ({ entry, day }));
-    })
-    .sort((a, b) => a.day - b.day || a.entry.start.localeCompare(b.entry.start) || a.entry.end.localeCompare(b.entry.end));
-}
-
 function getRepeatDaysFromForm() {
   if (entryRepeat.value !== "weekly") {
     return [Number(entryDay.value)];
@@ -1037,31 +1018,6 @@ function getPlannerSlotFromPointer(event, plannerSvg, lockedDay = null) {
   const rawMinutes = PLANNER_START_MINUTES + ((y - headerHeight) / HOUR_HEIGHT) * 60;
   const minutes = snapPlannerMinutes(rawMinutes);
   return buildPlannerSelection(day, minutes, minutes);
-}
-
-function buildPlannerSelection(day, startMinutes, endMinutes) {
-  const boundedDay = Math.max(0, Math.min(day, DAYS.length - 1));
-  const safeStart = snapPlannerMinutes(startMinutes);
-  const safeEnd = snapPlannerMinutes(endMinutes);
-  const minMinutes = Math.min(safeStart, safeEnd);
-  const maxMinutes = Math.max(safeStart, safeEnd) + PLANNER_STEP_MINUTES;
-
-  return {
-    day: boundedDay,
-    start: minutesToTime(minMinutes),
-    end: minutesToTime(Math.min(maxMinutes, PLANNER_END_MINUTES)),
-  };
-}
-
-function snapPlannerMinutes(minutes) {
-  const stepped = Math.round(minutes / PLANNER_STEP_MINUTES) * PLANNER_STEP_MINUTES;
-  return Math.max(PLANNER_START_MINUTES, Math.min(stepped, PLANNER_END_MINUTES - PLANNER_STEP_MINUTES));
-}
-
-function minutesToTime(minutes) {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
 }
 
 function applyPlannerSelectionToForm(selection) {

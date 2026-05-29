@@ -7,6 +7,15 @@
   "scripts": {
     "build": "node ./scripts/build.mjs",
     "start": "npm run build && node ./scripts/serve.mjs dist",
-    "start:src": "node ./scripts/serve.mjs"
+    "start:src": "node ./scripts/serve.mjs",
+    "test:unit": "node --test tests/unit/*.test.mjs",
+    "test:integration": "node tests/integration/run.mjs",
+    "test:e2e:src": "node tests/e2e/run-variant.mjs src",
+    "test:e2e:dist": "node tests/e2e/run-variant.mjs dist",
+    "test:e2e:docker": "node tests/e2e/run-variant.mjs docker",
+    "test": "npm run test:unit && npm run test:integration && npm run test:e2e:src && npm run test:e2e:dist && npm run test:e2e:docker"
+  },
+  "devDependencies": {
+    "playwright": "^1.54.2"
   }
 }
