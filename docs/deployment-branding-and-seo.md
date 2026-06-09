@@ -122,6 +122,33 @@ The production deployment workflow builds the static artifact with hosted-enviro
 configuration values. The workflow is responsible for passing the public-site
 branding and SEO variables into `npm run build`.
 
+### Hosted content releases
+
+Hosted SEO content should be releasable without cutting a new app version.
+Article source files should live under `content/articulos/` in the repository,
+while rendering logic remains in `scripts/articles.mjs` and related build
+helpers.
+
+The hosted deployment workflow should run for both:
+
+- tagged app releases, such as `v1.2.3`
+- changes merged to `main` under `content/articulos/**`
+
+Content-only deployments should rebuild and redeploy the hosted static artifact
+but must not publish a new Docker image or require a new app tag. The deployed
+hosted site can therefore combine the current app code from `main` with the
+latest article content.
+
+The Docker release workflow should remain tag-driven only. A content-only
+change must not trigger GHCR publishing, because hosted articles are not part of
+the self-hosted runtime contract.
+
+Article files should be treated as content data rather than application code.
+A future implementation can use Markdown files with frontmatter for fields such
+as slug, title, page title, description, intro, ordering, and publication status.
+The build should transform those files into the same static `/articulos/` HTML
+pages, sitemap entries, and structured data that the hosted artifact uses today.
+
 ### GHCR Docker release
 
 The image release workflow builds directly from the generic source tree. It does
@@ -136,3 +163,5 @@ generated `dist/` artifact.
   can define the canonical site-config shape.
 - Local development may support some overrides for previewing the branded build,
   but the main requirement is correct hosted artifact generation.
+- Keep hosted article content isolated under `content/articulos/` so content-only
+  commits can trigger hosted redeploys without changing the app release version.
