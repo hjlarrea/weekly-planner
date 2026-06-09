@@ -110,6 +110,10 @@ The `dist/` folder is ignored by git.
 The build output is where hosted branding and SEO metadata are generated. The
 repository source files remain generic by default.
 
+See [Deployment Model](docs/deployment.md) and
+[SEO and Content Model](docs/seo-and-content.md) for the hosted/self-hosted
+split and content-only release rules.
+
 ## Docker
 
 ```bash
