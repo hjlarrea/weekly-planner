@@ -7,12 +7,17 @@ SITE_DESCRIPTION_VALUE="${SITE_DESCRIPTION:-Planner semanal familiar para activi
 SITE_URL_VALUE="${SITE_URL:-}"
 SITE_OG_IMAGE_VALUE="${SITE_OG_IMAGE:-}"
 SITE_ROBOTS_VALUE="${SITE_ROBOTS:-index,follow}"
+SITE_MENU_ENABLED_VALUE="${SITE_MENU_ENABLED:-false}"
 SITE_NAME_ESCAPED="$(printf '%s' "$SITE_NAME_VALUE" | sed 's/\\/\\\\/g; s/"/\\"/g')"
 SITE_TITLE_ESCAPED="$(printf '%s' "$SITE_TITLE_VALUE" | sed 's/\\/\\\\/g; s/"/\\"/g')"
 SITE_DESCRIPTION_ESCAPED="$(printf '%s' "$SITE_DESCRIPTION_VALUE" | sed 's/\\/\\\\/g; s/"/\\"/g')"
 SITE_URL_ESCAPED="$(printf '%s' "$SITE_URL_VALUE" | sed 's/\\/\\\\/g; s/"/\\"/g')"
 SITE_OG_IMAGE_ESCAPED="$(printf '%s' "$SITE_OG_IMAGE_VALUE" | sed 's/\\/\\\\/g; s/"/\\"/g')"
 SITE_ROBOTS_ESCAPED="$(printf '%s' "$SITE_ROBOTS_VALUE" | sed 's/\\/\\\\/g; s/"/\\"/g')"
+case "$(printf '%s' "$SITE_MENU_ENABLED_VALUE" | tr '[:upper:]' '[:lower:]')" in
+  1|true|yes|on) SITE_MENU_ENABLED_JSON=true ;;
+  *) SITE_MENU_ENABLED_JSON=false ;;
+esac
 
 cat > /usr/share/nginx/html/config.js <<EOF
 window.APP_CONFIG = {
@@ -22,7 +27,7 @@ window.APP_CONFIG = {
   siteUrl: "${SITE_URL_ESCAPED}",
   siteOgImage: "${SITE_OG_IMAGE_ESCAPED}",
   siteRobots: "${SITE_ROBOTS_ESCAPED}",
-  siteMenuEnabled: false,
+  siteMenuEnabled: ${SITE_MENU_ENABLED_JSON},
 };
 EOF
 

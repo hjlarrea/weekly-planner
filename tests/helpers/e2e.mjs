@@ -1,5 +1,5 @@
 import { chromium } from "playwright";
-import { ensureDockerAvailable, runCommand, startServer, waitForHttp } from "./process.mjs";
+import { ensureDockerAvailable, fetchText, runCommand, startServer, waitForHttp } from "./process.mjs";
 
 const CHROME_EXECUTABLE_PATH = process.env.PLAYWRIGHT_CHROME_EXECUTABLE_PATH
   || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -135,13 +135,20 @@ export async function setupDockerVariant(context) {
   await runCommand("docker", ["compose", "up", "-d", "--build"], {
     env: {
       SITE_NAME: "Planner Docker Test",
+      SITE_TITLE: "Planner Docker Test",
+      SITE_URL: "https://docker.test.example/",
       SITE_MENU_ENABLED: "true",
     },
   });
   await waitForHttp("http://127.0.0.1:4173/");
+  const articlePage = await fetchText("http://127.0.0.1:4173/articulos/diferencias-con-google-calendar-outlook/");
+  if (!articlePage.includes("Diferencias entre este planner y Google Calendar u Outlook")) {
+    throw new Error("Docker hosted article page was not served correctly.");
+  }
+
   return {
     baseUrl: "http://127.0.0.1:4173/",
     expectedSiteTitle: "Planner Docker Test",
-    expectHostedMenu: false,
+    expectHostedMenu: true,
   };
 }
