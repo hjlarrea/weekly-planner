@@ -6,6 +6,8 @@
 - [x] Implement web analytics to measure site's performance
 - [ ] Implement SEO improvement parameters (Google Search Console)
 - [x] Deploy and hosting
-- [ ] Blog/static pages with content for SEO purposes.
+- [X] Blog/static pages with content for SEO purposes.
+- [ ] Decouple the content publishing logic from the version release process
+- [ ] Implement an English version of the site
 - [ ] Integrate with gmail and allow saving calendar to the cloud
 - [ ] Integrate with outlook and allow saving calendar to the cloud
