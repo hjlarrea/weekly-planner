@@ -9,7 +9,7 @@ services:
         SITE_URL: ${SITE_URL:-}
         SITE_OG_IMAGE: ${SITE_OG_IMAGE:-}
         SITE_ROBOTS: ${SITE_ROBOTS:-index,follow}
-        SITE_MENU_ENABLED: ${SITE_MENU_ENABLED:-true}
+        SITE_MENU_ENABLED: ${SITE_MENU_ENABLED:-false}
     environment:
       SITE_NAME: ${SITE_NAME:-Planner Semanal (Compose)}
       SITE_TITLE: ${SITE_TITLE:-Planner Semanal (Compose)}
@@ -17,7 +17,7 @@ services:
       SITE_URL: ${SITE_URL:-}
       SITE_OG_IMAGE: ${SITE_OG_IMAGE:-}
       SITE_ROBOTS: ${SITE_ROBOTS:-index,follow}
-      SITE_MENU_ENABLED: ${SITE_MENU_ENABLED:-true}
+      SITE_MENU_ENABLED: ${SITE_MENU_ENABLED:-false}
     ports:
       - "4173:80"
     restart: unless-stopped
