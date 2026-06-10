@@ -71,15 +71,33 @@ Article source files should live under `content/articulos/` in the repository,
 while rendering logic remains in `scripts/articles.mjs` and related build
 helpers.
 
-Article files should be treated as content data rather than application code. A
-future implementation can use Markdown files with frontmatter for fields such as
-slug, title, page title, description, intro, ordering, and publication status.
-The build should transform those files into the same static `/articulos/` HTML
-pages, sitemap entries, and structured data that the hosted artifact uses today.
+Article files should be treated as content data rather than application code.
+Each article is a Markdown file with frontmatter:
 
-Content-only commits under `content/articulos/**` should trigger the hosted
-deployment workflow only. They should not publish a Docker image or require a new
-app version tag.
+```markdown
+---
+slug: planner-semanal-familiar
+title: Planner semanal familiar
+pageTitle: Planner semanal familiar | Organiza actividades y traslados
+description: Organiza actividades, horarios y traslados en una sola vista semanal.
+order: 10
+published: true
+---
+Intro del artículo.
+
+## Título de sección
+
+Contenido de la sección.
+```
+
+The intro is the first paragraph before any section heading. Article sections use
+level-two headings (`##`) followed by one or more paragraphs. The build
+transforms those files into the same static `/articulos/` HTML pages, sitemap
+entries, and structured data that the hosted artifact uses today.
+
+Content-only commits under `content/articulos/**` trigger the hosted deployment
+workflow only. They do not publish a Docker image or require a new app version
+tag.
 
 ## Implementation Notes
 

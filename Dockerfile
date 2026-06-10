@@ -18,6 +18,7 @@ COPY index.html styles.css app.js planner-core.mjs config.js sw.js manifest.json
 COPY icons icons
 COPY img img
 COPY scripts scripts
+COPY content content
 
 ARG SITE_NAME="Planner Semanal"
 ARG SITE_TITLE="Planner Semanal"

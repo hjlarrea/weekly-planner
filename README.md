@@ -114,6 +114,10 @@ See [Deployment Model](docs/deployment.md) and
 [SEO and Content Model](docs/seo-and-content.md) for the hosted/self-hosted
 split and content-only release rules.
 
+Hosted article content lives in `content/articulos/` as Markdown files with
+frontmatter. Changes there can redeploy the hosted site without publishing a new
+Docker image or cutting a new app tag.
+
 ## Docker
 
 ```bash

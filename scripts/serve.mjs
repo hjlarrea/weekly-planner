@@ -10,6 +10,7 @@ import {
   buildArticleLandingPage,
   findHostedArticleByPathname,
   getHostedArticleRoutes,
+  loadHostedArticles,
 } from "./articles.mjs";
 
 const PORT = Number(process.env.PORT || 4173);
@@ -18,6 +19,7 @@ const rootDir = join(__dirname, "..");
 const serveDir = resolveServeDir(process.argv[2]);
 const siteConfig = resolveSiteConfig(process.env);
 const servesGeneratedOutput = serveDir !== rootDir;
+const hostedArticles = !servesGeneratedOutput && siteConfig.siteMenuEnabled ? loadHostedArticles() : [];
 
 const CONTENT_TYPES = {
   ".css": "text/css; charset=utf-8",
@@ -57,18 +59,18 @@ const server = http.createServer(async (request, response) => {
   }
 
   if (!servesGeneratedOutput && pathname === "/sitemap.xml") {
-    const sitemapPaths = siteConfig.siteMenuEnabled ? ["/", "/articulos/", ...getHostedArticleRoutes()] : ["/"];
+    const sitemapPaths = siteConfig.siteMenuEnabled ? ["/", "/articulos/", ...getHostedArticleRoutes(hostedArticles)] : ["/"];
     sendText(response, "application/xml; charset=utf-8", buildSitemapXml(siteConfig, sitemapPaths));
     return;
   }
 
   if (!servesGeneratedOutput && siteConfig.siteMenuEnabled && pathname === "/articulos/") {
-    sendText(response, "text/html; charset=utf-8", buildArticleLandingPage(siteConfig));
+    sendText(response, "text/html; charset=utf-8", buildArticleLandingPage(siteConfig, hostedArticles));
     return;
   }
 
   if (!servesGeneratedOutput && siteConfig.siteMenuEnabled) {
-    const matchedArticle = findHostedArticleByPathname(pathname);
+    const matchedArticle = findHostedArticleByPathname(pathname, hostedArticles);
     if (matchedArticle) {
       sendText(response, "text/html; charset=utf-8", buildArticleDetailPage(matchedArticle, siteConfig));
       return;
