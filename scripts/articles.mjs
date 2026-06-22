@@ -136,6 +136,12 @@ function parseArticleMarkdown(filePath) {
   }
 
   const metadata = parseFrontmatter(match[1], filePath);
+  const published = parseBoolean(metadata.published, true);
+
+  if (!published) {
+    return { published: false };
+  }
+
   const sections = parseArticleBody(match[2].trim(), filePath);
   const introSection = sections.shift();
 
@@ -150,7 +156,7 @@ function parseArticleMarkdown(filePath) {
     description: requireMetadata(metadata, "description", filePath),
     intro: introSection.paragraphs.join("\n\n"),
     order: Number.parseInt(metadata.order || "1000", 10),
-    published: parseBoolean(metadata.published, true),
+    published,
     sections,
   };
 

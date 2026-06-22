@@ -79,6 +79,41 @@ test("buildArticleLandingPage renders loaded article cards", async () => {
   }
 });
 
+test("loadHostedArticles ignores unpublished drafts with incomplete bodies", async () => {
+  const contentDir = await mkdtemp(join(tmpdir(), "weekly-planner-articles-"));
+  try {
+    await writeArticle(contentDir, "publicado.md", {
+      slug: "articulo-publicado",
+      title: "Artículo publicado",
+      pageTitle: "Artículo publicado",
+      description: "Descripción publicada.",
+      order: "10",
+      body: [
+        "Intro publicada.",
+        "## Título publicado",
+        "Contenido publicado.",
+      ].join("\n\n"),
+    });
+    await writeFile(
+      join(contentDir, "borrador.md"),
+      [
+        "---",
+        "slug: borrador-incompleto",
+        "published: false",
+        "---",
+        "### Encabezado todavía inválido",
+        "",
+      ].join("\n"),
+    );
+
+    const articles = loadHostedArticles(contentDir);
+
+    assert.deepEqual(articles.map((article) => article.slug), ["articulo-publicado"]);
+  } finally {
+    await rm(contentDir, { force: true, recursive: true });
+  }
+});
+
 async function writeArticle(contentDir, filename, article) {
   await writeFile(
     join(contentDir, filename),

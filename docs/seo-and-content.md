@@ -95,6 +95,9 @@ level-two headings (`##`) followed by one or more paragraphs. The build
 transforms those files into the same static `/articulos/` HTML pages, sitemap
 entries, and structured data that the hosted artifact uses today.
 
+Set `published: false` while drafting. Unpublished files are excluded before
+body validation, so incomplete drafts do not block hosted or Docker builds.
+
 Content-only commits under `content/articulos/**` trigger the hosted deployment
 workflow only. They do not publish a Docker image or require a new app version
 tag.
