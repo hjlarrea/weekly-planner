@@ -35,7 +35,7 @@ async function testHostedBuildWritesBrandedOutput() {
   assert.match(configJs, /siteMenuEnabled": true/);
   assert.match(robotsTxt, /Sitemap: https:\/\/planner-hosted\.example\/sitemap\.xml/);
   assert.match(sitemapXml, /https:\/\/planner-hosted\.example\/articulos\//);
-  assert.match(articlePage, /Artículos/);
+  assert.match(articlePage, /Blog/);
 }
 
 async function testSourceRuntimeServesDynamicConfig() {
@@ -66,7 +66,7 @@ async function testSourceRuntimeServesDynamicConfig() {
     assert.match(configJs, /siteMenuEnabled": true/);
     assert.match(robotsTxt, /Allow: \//);
     assert.match(sitemapXml, /https:\/\/runtime\.example\/articulos\//);
-    assert.match(articleLanding, /Artículos/);
+    assert.match(articleLanding, /Blog/);
   } finally {
     await server.stop();
   }

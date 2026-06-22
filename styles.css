@@ -213,6 +213,14 @@ label {
   min-width: 0;
 }
 
+.hero-logo {
+  display: block;
+  width: 8rem;
+  height: 8rem;
+  object-fit: contain;
+  margin: -1.1rem 0 -0.5rem -1.25rem;
+}
+
 .hero-side {
   display: flex;
   flex-direction: column;
@@ -721,29 +729,59 @@ h3 {
   margin-top: 0.85rem;
 }
 
-.article-index-grid {
+.article-feed {
+  border-top: 1px solid rgba(90, 63, 41, 0.18);
+}
+
+.article-feed-item {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  grid-template-columns: 3rem minmax(0, 1fr) auto;
+  gap: 1.25rem;
+  align-items: start;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid rgba(90, 63, 41, 0.18);
 }
 
-.article-card {
-  padding: 1.3rem 1.35rem;
-  border-radius: 22px;
-  border: 1px solid rgba(90, 63, 41, 0.1);
-  background: rgba(255, 255, 255, 0.78);
+.article-feed-number {
+  padding-top: 0.2rem;
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
 }
 
-.article-card p {
+.article-feed-copy h2 {
+  margin: 0;
+  font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+}
+
+.article-feed-copy h2 a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.article-feed-copy h2 a:hover,
+.article-feed-copy h2 a:focus-visible {
+  color: var(--accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.article-feed-copy p {
   color: var(--muted);
   line-height: 1.65;
-  margin-top: 0.75rem;
+  margin-top: 0.6rem;
+  max-width: 64ch;
 }
 
-.article-card-link {
+.article-feed-link {
   display: inline-flex;
-  margin-top: 1rem;
+  align-items: center;
+  gap: 0.45rem;
+  padding-top: 0.3rem;
   font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
 }
 
 .article-actions {
@@ -862,10 +900,6 @@ th {
   .content-header {
     align-items: start;
     flex-direction: column;
-  }
-
-  .article-index-grid {
-    grid-template-columns: 1fr;
   }
 
   .editor-panel {
@@ -1030,6 +1064,17 @@ th {
   .article-panel,
   .article-cta {
     padding: 1.2rem;
+  }
+
+  .article-feed-item {
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 1.25rem 0;
+  }
+
+  .article-feed-link {
+    grid-column: 2;
+    padding-top: 0;
   }
 }
 

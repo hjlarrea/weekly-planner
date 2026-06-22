@@ -40,15 +40,15 @@ export function buildArticleLandingPage(siteConfig, articles = loadHostedArticle
   return buildHostedHtmlPage({
     siteConfig,
     path: LANDING_PATH,
-    pageTitle: `Artículos | ${siteConfig.siteName}`,
+    pageTitle: `Blog | ${siteConfig.siteName}`,
     description:
       "Guías y contenidos prácticos sobre organización semanal familiar, actividades, traslados y planificación cotidiana.",
-    heading: "Artículos sobre organización semanal familiar",
+    heading: "Blog de organización semanal familiar",
     lead:
-      "Esta sección reúne contenidos pensados para ayudar a organizar mejor la semana, con foco en familias, actividades, traslados y rutinas cotidianas. Cada artículo aborda un problema concreto y enlaza de vuelta al planner para pasar de la idea a la práctica.",
+      "Ideas y guías prácticas para organizar mejor la semana familiar, coordinar actividades y resolver traslados con menos fricción.",
     body: `
-      <div class="article-index-grid">
-        ${articles.map((article) => renderArticleCard(article)).join("\n")}
+      <div class="article-feed">
+        ${articles.map((article, index) => renderArticleFeedItem(article, index)).join("\n")}
       </div>
       <section class="article-panel">
         <h2>Cómo aprovechar estos contenidos</h2>
@@ -67,7 +67,7 @@ export function buildArticleLandingPage(siteConfig, articles = loadHostedArticle
     structuredData: {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
-      name: "Artículos sobre organización semanal familiar",
+      name: "Blog de organización semanal familiar",
       url: buildAbsoluteUrl(siteConfig.siteUrl, LANDING_PATH),
       description:
         "Guías y contenidos prácticos sobre organización semanal familiar, actividades, traslados y planificación cotidiana.",
@@ -104,7 +104,7 @@ export function buildArticleDetailPage(article, siteConfig) {
         </p>
         <div class="article-actions">
           <a class="article-button" href="${ROOT_PATH}">Abrir el planner</a>
-          <a class="article-button ghost-link" href="${LANDING_PATH}">Ver más artículos</a>
+          <a class="article-button ghost-link" href="${LANDING_PATH}">Volver al blog</a>
         </div>
       </section>
     `,
@@ -318,9 +318,9 @@ function buildHostedHtmlPage({
           <p class="eyebrow">Organización Familiar</p>
           <a class="content-brand" href="${ROOT_PATH}">${escapeHtml(siteConfig.siteName)}</a>
         </div>
-        <nav class="content-nav" aria-label="Navegación de contenidos">
+        <nav class="content-nav" aria-label="Navegación del blog">
           <a href="${ROOT_PATH}">Inicio</a>
-          <a href="${LANDING_PATH}">Artículos</a>
+          <a href="${LANDING_PATH}">Blog</a>
         </nav>
       </header>
 
@@ -328,7 +328,7 @@ function buildHostedHtmlPage({
         <div class="article-breadcrumbs">
           <a href="${ROOT_PATH}">Inicio</a>
           <span>/</span>
-          <a href="${LANDING_PATH}">Artículos</a>
+          <a href="${LANDING_PATH}">Blog</a>
         </div>
         <section class="article-hero">
           <h1>${escapeHtml(heading)}</h1>
@@ -350,12 +350,17 @@ function buildHostedHtmlPage({
 `;
 }
 
-function renderArticleCard(article) {
+function renderArticleFeedItem(article, index) {
   return `
-    <article class="article-card">
-      <h2><a href="/articulos/${article.slug}/">${escapeHtml(article.title)}</a></h2>
-      <p>${escapeHtml(article.description)}</p>
-      <a class="article-card-link" href="/articulos/${article.slug}/">Leer artículo</a>
+    <article class="article-feed-item">
+      <p class="article-feed-number">${String(index + 1).padStart(2, "0")}</p>
+      <div class="article-feed-copy">
+        <h2><a href="/articulos/${article.slug}/">${escapeHtml(article.title)}</a></h2>
+        <p>${escapeHtml(article.description)}</p>
+      </div>
+      <a class="article-feed-link" href="/articulos/${article.slug}/" aria-label="Leer ${escapeAttribute(article.title)}">
+        Leer artículo <span aria-hidden="true">&rarr;</span>
+      </a>
     </article>
   `;
 }

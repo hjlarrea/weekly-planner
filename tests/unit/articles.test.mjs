@@ -52,7 +52,7 @@ test("loadHostedArticles parses markdown frontmatter and sections in order", asy
   }
 });
 
-test("buildArticleLandingPage renders loaded article cards", async () => {
+test("buildArticleLandingPage renders loaded article feed items", async () => {
   const contentDir = await mkdtemp(join(tmpdir(), "weekly-planner-articles-"));
   try {
     await writeArticle(contentDir, "articulo.md", {
@@ -74,6 +74,8 @@ test("buildArticleLandingPage renders loaded article cards", async () => {
     assert.match(html, /Artículo de prueba/);
     assert.match(html, /\/articulos\/articulo-de-prueba\//);
     assert.match(html, /https:\/\/planner\.example\/articulos\//);
+    assert.match(html, /class="article-feed-item"/);
+    assert.doesNotMatch(html, /class="article-card"/);
   } finally {
     await rm(contentDir, { force: true, recursive: true });
   }
