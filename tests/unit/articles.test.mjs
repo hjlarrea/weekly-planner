@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import test from "node:test";
 import {
+  buildArticleDetailPage,
   buildArticleLandingPage,
   findHostedArticleByPathname,
   getHostedArticleRoutes,
@@ -114,6 +115,16 @@ test("loadHostedArticles ignores unpublished drafts with incomplete bodies", asy
   } finally {
     await rm(contentDir, { force: true, recursive: true });
   }
+});
+
+test("buildArticleDetailPage renders a continuous editorial layout", async () => {
+  const articles = loadHostedArticles();
+  const siteConfig = resolveSiteConfig({ SITE_NAME: "Planner Test", SITE_URL: "https://planner.example/" });
+  const html = buildArticleDetailPage(articles[0], siteConfig);
+
+  assert.match(html, /class="article-page article-detail-page"/);
+  assert.match(html, /class="article-section"/);
+  assert.doesNotMatch(html, /class="article-panel"/);
 });
 
 async function writeArticle(contentDir, filename, article) {

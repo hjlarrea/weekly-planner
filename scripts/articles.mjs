@@ -39,6 +39,7 @@ export function findHostedArticleByPathname(pathname, articles = loadHostedArtic
 export function buildArticleLandingPage(siteConfig, articles = loadHostedArticles()) {
   return buildHostedHtmlPage({
     siteConfig,
+    pageClass: "blog-index-page",
     path: LANDING_PATH,
     pageTitle: `Blog | ${siteConfig.siteName}`,
     description:
@@ -79,6 +80,7 @@ export function buildArticleLandingPage(siteConfig, articles = loadHostedArticle
 export function buildArticleDetailPage(article, siteConfig) {
   return buildHostedHtmlPage({
     siteConfig,
+    pageClass: "article-detail-page",
     path: `/articulos/${article.slug}/`,
     pageTitle: article.pageTitle,
     description: article.description,
@@ -88,7 +90,7 @@ export function buildArticleDetailPage(article, siteConfig) {
       ${article.sections
         .map(
           (section) => `
-            <section class="article-panel">
+            <section class="article-section">
               <h2>${escapeHtml(section.heading)}</h2>
               ${section.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("\n")}
             </section>
@@ -272,6 +274,7 @@ function buildHostedHtmlPage({
   lead,
   body,
   structuredData,
+  pageClass,
 }) {
   const canonicalUrl = buildAbsoluteUrl(siteConfig.siteUrl, path);
   const ogImageTag = siteConfig.siteOgImage
@@ -324,7 +327,7 @@ function buildHostedHtmlPage({
         </nav>
       </header>
 
-      <main class="article-page">
+      <main class="article-page ${escapeAttribute(pageClass)}">
         <div class="article-breadcrumbs">
           <a href="${ROOT_PATH}">Inicio</a>
           <span>/</span>
