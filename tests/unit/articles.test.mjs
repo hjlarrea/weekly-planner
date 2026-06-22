@@ -124,6 +124,8 @@ test("buildArticleDetailPage renders a continuous editorial layout", async () =>
 
   assert.match(html, /class="article-page article-detail-page"/);
   assert.match(html, /class="article-section"/);
+  assert.match(html, /class="article-section-number"[^>]*>01</);
+  assert.match(html, /class="article-section-body"/);
   assert.doesNotMatch(html, /class="article-panel"/);
 });
 

@@ -89,10 +89,15 @@ export function buildArticleDetailPage(article, siteConfig) {
     body: `
       ${article.sections
         .map(
-          (section) => `
+          (section, index) => `
             <section class="article-section">
-              <h2>${escapeHtml(section.heading)}</h2>
-              ${section.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("\n")}
+              <div class="article-section-heading">
+                <span class="article-section-number" aria-hidden="true">${String(index + 1).padStart(2, "0")}</span>
+                <h2>${escapeHtml(section.heading)}</h2>
+              </div>
+              <div class="article-section-body">
+                ${section.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("\n")}
+              </div>
             </section>
           `,
         )
