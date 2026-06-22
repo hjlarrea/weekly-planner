@@ -24,6 +24,7 @@ export async function runPlannerFlowSuite(setupVariant) {
 
     await page.goto(variant.baseUrl, { waitUntil: "networkidle" });
     await expectShellState(page, variant);
+    await expectAboutPageLayout(page, variant);
     await expectPlannerSelectionFlow(page);
     await expectRecurringOccurrenceEditFlow(page);
   } finally {
@@ -32,6 +33,22 @@ export async function runPlannerFlowSuite(setupVariant) {
       await task();
     }
   }
+}
+
+async function expectAboutPageLayout(page, variant) {
+  if (!variant.expectHostedMenu) {
+    return;
+  }
+
+  await page.getByRole("button", { name: "Abrir menú" }).click();
+  await page.getByRole("button", { name: "Acerca de" }).click();
+  await page.getByRole("heading", { name: "Un planner semanal pensado para familias reales" }).waitFor();
+  await page.locator("#about-page.article-detail-page").waitFor();
+  await page.locator("#about-page .article-section-number", { hasText: "04" }).waitFor();
+
+  await page.getByRole("button", { name: "Abrir menú" }).click();
+  await page.getByRole("button", { name: "Inicio" }).click();
+  await page.locator("#planner-canvas").waitFor();
 }
 
 async function expectShellState(page, variant) {
